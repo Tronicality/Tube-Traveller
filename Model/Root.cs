@@ -9,39 +9,39 @@ namespace Tube_Traveller.Model
 {
     internal class Root
     {
-        //General
+        //General - List<Root>
         public string Type { get; set; }
-        public string id { get; set; }
-        public string name { get; set; }
-        public string modeName { get; set; }
+        public string Id { get; set; }
+        public string ModeName { get; set; }
 
-        //Mode and Route
-        public List<object> disruptions { get; set; }
-        public DateTime created { get; set; }
-        public DateTime modified { get; set; }
-        public List<object> lineStatuses { get; set; }
-        public List<RouteSection> routeSections { get; set; }
-        public List<ServiceType> serviceTypes { get; set; }
-        public Crowding crowding { get; set; }
+        //https://api.tfl.gov.uk/line/mode/tube - List<Root>
+        public string Name { get; set; }
+        public List<object> Disruptions { get; set; }
+        public DateTime Created { get; set; }
+        public DateTime Modified { get; set; }
+        public List<object> LineStatuses { get; set; }
+        public List<RouteSection> RouteSections { get; set; }
+        public List<ServiceType> ServiceTypes { get; set; }
+        public Crowding Crowding { get; set; }
 
-        //Line Arrivals
-        public int operationType { get; set; }
-        public string vehicleId { get; set; }
-        public string naptanId { get; set; }
-        public string stationName { get; set; }
-        public string lineId { get; set; }
-        public string lineName { get; set; }
-        public string platformName { get; set; }
-        public string direction { get; set; }
-        public string bearing { get; set; }
-        public string destinationNaptanId { get; set; }
-        public string destinationName { get; set; }
-        public DateTime timestamp { get; set; }
-        public int timeToStation { get; set; }
-        public string currentLocation { get; set; }
-        public string towards { get; set; }
-        public DateTime expectedArrival { get; set; }
-        public DateTime timeToLive { get; set; }
-        public Timing timing { get; set; }
+        //https://api.tfl.gov.uk/Line/{id}/Arrivals - List<Root>
+        public int OperationType { get; set; }
+        public string VehicleId { get; set; }
+        public string NaptanId { get; set; }
+        public string StationName { get; set; }
+        public string LineId { get; set; }
+        public string LineName { get; set; }
+        public string PlatformName { get; set; }
+        public string Direction { get; set; }
+        public string Bearing { get; set; }
+        public string DestinationNaptanId { get; set; }
+        public string DestinationName { get; set; }
+        public DateTime Timestamp { get; set; }
+        public int TimeToStation { get; set; }
+        public string CurrentLocation { get; set; }
+        public string Towards { get; set; }
+        public DateTime ExpectedArrival { get; set; }
+        public DateTime TimeToLive { get; set; }
+        public Timing Timing { get; set; }
     }
 }

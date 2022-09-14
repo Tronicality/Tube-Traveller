@@ -27,10 +27,13 @@ namespace Tube_Traveller
         {
             TflData data = new TflData();
 
-            var line = await data.GetLineId(Convert.ToInt32(inputBox.Text));
+            var lineName = await data.GetName(Convert.ToInt32(inputBox.Text));
+            var lineMode = await data.GetModeName(Convert.ToInt32(inputBox.Text));
+            var currentLocation = await data.GetCurrentLocation(Convert.ToInt32(inputBox.Text));
             var destinationName = await data.GetDestinationName(Convert.ToInt32(inputBox.Text));
             var expectedArrival = await data.GetLineArrivals(Convert.ToInt32(inputBox.Text));
-            dataDisplay.AppendText($"Line: {line}\nDestination: {destinationName}\nExpected Arrival: {expectedArrival}\n");
+
+            dataDisplay.Text = ($"Line: {lineName} - Mode: {lineMode}\nCurrent Location: {currentLocation}\nDestination: {destinationName}\nExpected Arrival: {expectedArrival}\n");
         }
     }
 }

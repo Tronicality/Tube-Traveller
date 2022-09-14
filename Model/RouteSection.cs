@@ -9,14 +9,14 @@ namespace Tube_Traveller.Model
     internal class RouteSection
     {
         public string Type { get; set; }
-        public string name { get; set; }
-        public string direction { get; set; }
-        public string originationName { get; set; }
-        public string destinationName { get; set; }
-        public string originator { get; set; }
-        public string destination { get; set; }
-        public string serviceType { get; set; }
-        public DateTime validTo { get; set; }
-        public DateTime validFrom { get; set; }
+        public string Name { get; set; }
+        public string Direction { get; set; }
+        public string OriginationName { get; set; }
+        public string DestinationName { get; set; }
+        public string Originator { get; set; }
+        public string Destination { get; set; }
+        public string ServiceType { get; set; }
+        public DateTime ValidTo { get; set; }
+        public DateTime ValidFrom { get; set; }
     }
 }

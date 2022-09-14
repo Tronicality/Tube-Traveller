@@ -7,16 +7,15 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid x:Name="Lines">
-        <RichTextBox x:Name="dataDisplay" HorizontalAlignment="Left" Height="245" Margin="35,141,0,0" VerticalAlignment="Top" Width="700" IsEnabled="False">
-            <FlowDocument>
-                <Paragraph>
-                    <Run Text=""/>
-                </Paragraph>
-            </FlowDocument>
-        </RichTextBox>
-        <TextBox x:Name="inputBox" HorizontalAlignment="Left" Height="27" Margin="182,85,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="176"/>
-        <Button x:Name="btnInput" Content="Line And Stuff" HorizontalAlignment="Left" Height="28" Margin="633,85,0,0" VerticalAlignment="Top" Width="102" Click="btnInput_Click"/>
-        <Label Content="Type in Line number:" HorizontalAlignment="Left" Height="27" Margin="35,85,0,0" VerticalAlignment="Top" Width="142"/>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="43*"/>
+            <ColumnDefinition Width="37*"/>
+        </Grid.ColumnDefinitions>
+        <TextBox x:Name="inputBox" HorizontalAlignment="Left" Height="27" Margin="159,85,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="176"/>
+        <Button x:Name="btnInput" Content="Output Line Information" HorizontalAlignment="Left" Height="28" Margin="170,85,0,0" VerticalAlignment="Top" Width="135" Click="btnInput_Click" Grid.Column="1"/>
+        <Label Content="Enter Line number:" HorizontalAlignment="Left" Height="27" Margin="35,85,0,0" VerticalAlignment="Top" Width="142"/>
+        <Label x:Name="Requirements" Content="Powered by TfL Open Data'. Contains OS data @ Crown copyright and database rights 2016' and Geomni UK Map data @ and database rights [2019]" HorizontalAlignment="Left" Height="30" VerticalAlignment="Top" Width="800" Grid.ColumnSpan="2"/>
+        <TextBox x:Name="dataDisplay" Grid.ColumnSpan="2" HorizontalAlignment="Left" Height="260" Margin="35,134,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="700"/>
 
     </Grid>
 </Window>
