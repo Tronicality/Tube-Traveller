@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 
 namespace Tube_Traveller.Model
 {
-    internal class ServiceType
+    public class LineGroup
     {
         public string? Type { get; set; }
-        public string? Name { get; set; }
-        public string? Uri { get; set; }
+        public string? StationAtcoCode { get; set; }
+        public List<string>? LineIdentifier { get; set; }
+        public string? NaptanIdReference { get; set; }
     }
 }

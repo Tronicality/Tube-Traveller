@@ -43,5 +43,23 @@ namespace Tube_Traveller.Model
         public DateTime ExpectedArrival { get; set; }
         public DateTime TimeToLive { get; set; }
         public Timing? Timing { get; set; }
+
+        //https://api.tfl.gov.uk/Line/{id}/StopPoints[?includeCrowdingData] 
+        //public string? NaptanId { get; set; }
+        public List<string>? Modes { get; set; }
+        public string? IcsCode { get; set; }
+        public string? StopType { get; set; }
+        public string? StationNaptan { get; set; }
+        public string? HubNaptanCode { get; set; }
+        public List<Line>? Lines { get; set; }
+        public List<LineGroup>? LineGroup { get; set; }
+        public List<LineModeGroup>? LineModeGroups { get; set; }
+        public bool Status { get; set; }
+        public string? CommonName { get; set; }
+        public string? PlaceType { get; set; }
+        public List<AdditionalProperty>? AdditionalProperties { get; set; }
+        public List<Child>? Children { get; set; }
+        public double Lat { get; set; }
+        public double Lon { get; set; }
     }
 }

@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace Tube_Traveller.Model
 {
-    internal class ServiceType
+    public class LineModeGroup
     {
         public string? Type { get; set; }
-        public string? Name { get; set; }
-        public string? Uri { get; set; }
+        public string? ModeName { get; set; }
+        public List<string>? LineIdentifier { get; set; }
     }
 }
