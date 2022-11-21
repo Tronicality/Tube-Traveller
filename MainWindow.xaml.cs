@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.IO.Compression;
 using System.IO;
+using Tube_Traveller.Model;
 
 namespace Tube_Traveller
 {
@@ -73,7 +74,7 @@ namespace Tube_Traveller
                 {
                     for (int i = 0; i < datas.Count; i++)
                     {
-                        ResultListBox.Items.Add($"Line: {datas[i].LineName} - Mode: {datas[i].ModeName}\nStation Name: {datas[i].StationName} - Current Location: {datas[i].CurrentLocation}\nDestination: {datas[i].DestinationName}\nExpected Arrival: {datas[i].ExpectedArrival.AddHours(1)}\n\n\n");
+                        ResultListBox.Items.Add($"Line: {datas[i].LineName} - Mode: {datas[i].ModeName}\nStation Name: {datas[i].StationName} - Current Location: {datas[i].CurrentLocation}\nDestination: {datas[i].DestinationName}\nExpected Arrival: {datas[i].ExpectedArrival.ToLocalTime()}\n\n\n");
                     }
                 }
             }
@@ -127,7 +128,7 @@ namespace Tube_Traveller
             }
         }
 
-        private void BtnRoute_Click(object sender, RoutedEventArgs e)
+        private async void BtnRoute_Click(object sender, RoutedEventArgs e)
         {
             ResultListBox.Items.Clear();
 
@@ -135,9 +136,37 @@ namespace Tube_Traveller
             {
                 ResultListBox.Items.Add("Nice");
             }
-            //Get Line in which stations are on
-            //If on same line then find arrival time for train from (from staion) to (to station)
-            //
+            else
+            {
+                var modes = await _client.GetAllModesAsync();
+
+                
+                Dictionary<string, Dictionary<string, List<OrderedLineRoute>>> orderedStationsByMode = new Dictionary<string, Dictionary<string,List<OrderedLineRoute>>>();
+
+                foreach (var mode in modes)
+                {
+                    if (mode.GetModeName() == "tube" | mode.GetModeName() == "dlr" | mode.GetModeName() == "elizabeth-line" | mode.GetModeName() == "overground" | mode.GetModeName() == "tram" | mode.GetModeName() == "cable-car")
+                    {
+                        var lines = await _client.GetAllLinesByModeAsync(mode.GetModeName());
+                        Dictionary<string, List<OrderedLineRoute>> orderedStations = new Dictionary<string, List<OrderedLineRoute>>();
+
+
+
+                        foreach (var line in lines)
+                        {
+                            var lineRoute = await _client.GetLineRouteAsync(line.GetId());
+                            orderedStations.Add(line.GetName(), lineRoute.GetOrderedLineRoutes());
+                            ResultListBox.Items.Add(line.GetName());
+                        }
+                        orderedStationsByMode.Add(mode.GetModeName(), orderedStations);
+                    }
+                }
+            }
+            //Get all lines and stations corresponding to lines
+            //Method 1
+            //Lon and lat find out what stations are closests, find out if they correspond to the lines that the closest stations are on then work form there
+            //Mehtod 2
+            //Use api that has the lines set in order All inbound. Deems distances from stations 
 
         }
     }
