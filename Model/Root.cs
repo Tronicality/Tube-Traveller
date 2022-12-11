@@ -1,9 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Windows.Navigation;
 
 namespace Tube_Traveller.Model
 {
@@ -13,9 +11,9 @@ namespace Tube_Traveller.Model
 
         //General - List<Root>
         public string? Type { get; set; }
-        public string? Id {internal get; set; }
+        public string? Id { internal get; set; }
         public string GetId() => Id!;
-        public string? ModeName {internal get; set; }
+        public string? ModeName { internal get; set; }
         public string GetModeName() => ModeName!;
 
         //https://api.tfl.gov.uk/Line/Meta/Modes - List<Root>
@@ -24,7 +22,7 @@ namespace Tube_Traveller.Model
         public bool IsScheduledService { get; set; }
         //ModeName
 
-        //https://api.tfl.gov.uk/Line/Mode/{modes}/Route[?serviceTypes] - List<Root>
+        //https://api.tfl.gov.uk/Line/Mode/{modes}/Route[?serviceTypes] - https://api.tfl.gov.uk/Line/Route[?serviceTypes] (with ModeName) - List<Root>
         public string? Name { internal get; set; }
         public string GetName() => Name!;
 
@@ -56,18 +54,21 @@ namespace Tube_Traveller.Model
         public DateTime TimeToLive { get; set; }
         public Timing? Timing { get; set; }
 
-        //https://api.tfl.gov.uk/Line/{id}/StopPoints[?includeCrowdingData] - Root
+        //https://api.tfl.gov.uk/Line/{id}/StopPoints[?includeCrowdingData] - List<Root>
         //public string? NaptanId { get; set; }
         public List<string>? Modes { get; set; }
         public string? IcsCode { get; set; }
         public string? StopType { get; set; }
         public string? StationNaptan { get; set; }
         public string? HubNaptanCode { get; set; }
-        public List<Line>? Lines { get; set; }
+        public List<Line>? Lines { get; }
+        public List<Line> GetLines() => Lines!;
+
         public List<LineGroup>? LineGroup { get; set; }
         public List<LineModeGroup>? LineModeGroups { get; set; }
         public bool Status { get; set; }
-        public string? CommonName { get; set; }
+        public string? CommonName { internal get; set; }
+        public string GetCommonName() => CommonName!;
         public string? PlaceType { get; set; }
         public List<AdditionalProperty>? AdditionalProperties { get; set; }
         public List<Child>? Children { get; set; }
@@ -83,7 +84,7 @@ namespace Tube_Traveller.Model
         public List<string>? LineStrings { get; set; }
         public List<Station>? Stations { get; set; }
         //public List<StopPointSequence> StopPointSequences { get; set; }
-        public List<OrderedLineRoute>? OrderedLineRoutes {internal get; set; }
+        public List<OrderedLineRoute>? OrderedLineRoutes { internal get; set; }
         public List<OrderedLineRoute> GetOrderedLineRoutes() => OrderedLineRoutes!;
     }
 }

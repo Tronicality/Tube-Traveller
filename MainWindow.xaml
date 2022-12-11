@@ -11,17 +11,14 @@
             <ColumnDefinition Width="43*"/>
             <ColumnDefinition Width="37*"/>
         </Grid.ColumnDefinitions>
-        <TextBox x:Name="inputBox" HorizontalAlignment="Left" Height="27" Margin="163,85,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="176"/>
-        <Button x:Name="btnInput" Content="Output Line Information" HorizontalAlignment="Left" Height="28" Margin="177,93,0,0" VerticalAlignment="Top" Width="135" Click="btnInput_Click" Grid.Column="1"/>
-        <Label Content="Enter Line number:" HorizontalAlignment="Left" Height="27" Margin="42,85,0,0" VerticalAlignment="Top" Width="142" Grid.ColumnSpan="2"/>
+        <Button x:Name="BtnMap" Content="Map" HorizontalAlignment="Center" Height="28" Margin="0,80,0,0" VerticalAlignment="Top" Width="102" Grid.Column="1"/>
         <Label x:Name="Requirements" Content="Powered by TfL Open Data'. Contains OS data @ Crown copyright and database rights 2016' and Geomni UK Map data @ and database rights [2019]" HorizontalAlignment="Left" Height="30" VerticalAlignment="Top" Width="800" Grid.ColumnSpan="2"/>
-        <ListBox x:Name="ResultListBox" HorizontalAlignment="Left" Height="107" Margin="86,282,0,0" VerticalAlignment="Top" Width="656" Grid.ColumnSpan="2"/>
-        <TextBox x:Name="TestBox" HorizontalAlignment="Left" Height="141" Margin="177,136,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="135" Grid.Column="1"/>
-        <Button x:Name="BtnTest" Grid.Column="1" Content="Testing Button" HorizontalAlignment="Left" Height="45" Margin="10,58,0,0" VerticalAlignment="Top" Width="112" Click="BtnTest_Click"/>
-        <ComboBox x:Name="FromComboBox" HorizontalAlignment="Left" Height="29" Margin="86,135,0,0" VerticalAlignment="Top" Width="173" Text="EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE" AllowDrop="True" IsReadOnly="True"/>
-        <ComboBox x:Name="ToComboBox" HorizontalAlignment="Left" Height="30" Margin="86,170,0,0" VerticalAlignment="Top" Width="173" IsReadOnly="True"/>
-        <Button x:Name="BtnRoute" Content="Route" HorizontalAlignment="Left" Height="50" Margin="304,140,0,0" VerticalAlignment="Top" Width="116" Click="BtnRoute_Click"/>
-        <Label Content="From:" HorizontalAlignment="Left" Height="24" Margin="32,136,0,0" VerticalAlignment="Top" Width="54"/>
-        <Label Content="To:" HorizontalAlignment="Left" Height="30" Margin="47,170,0,0" VerticalAlignment="Top" Width="39"/>
+        <ListBox x:Name="ResultListBox" HorizontalAlignment="Left" Height="160" Margin="10,264,0,0" VerticalAlignment="Top" Width="780" Grid.ColumnSpan="2"/>
+        <TextBox x:Name="TestBox" HorizontalAlignment="Left" Height="102" Margin="76,157,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="656" Grid.ColumnSpan="2"/>
+        <ComboBox x:Name="FromComboBox" HorizontalAlignment="Left" Height="29" Margin="76,64,0,0" VerticalAlignment="Top" Width="173" Text="EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE" AllowDrop="True" IsReadOnly="True"/>
+        <ComboBox x:Name="ToComboBox" HorizontalAlignment="Left" Height="30" Margin="76,99,0,0" VerticalAlignment="Top" Width="173" IsReadOnly="True"/>
+        <Button x:Name="BtnRoute" Content="Route" HorizontalAlignment="Left" Height="50" Margin="294,69,0,0" VerticalAlignment="Top" Width="116" Click="BtnRoute_Click"/>
+        <Label Content="From:" HorizontalAlignment="Left" Height="24" Margin="22,65,0,0" VerticalAlignment="Top" Width="54"/>
+        <Label Content="To:" HorizontalAlignment="Left" Height="30" Margin="37,99,0,0" VerticalAlignment="Top" Width="39"/>
     </Grid>
 </Window>

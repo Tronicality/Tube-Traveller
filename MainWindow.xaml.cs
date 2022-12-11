@@ -1,19 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Security.Cryptography.X509Certificates;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.IO.Compression;
-using System.IO;
 using Tube_Traveller.Model;
 
 namespace Tube_Traveller
@@ -21,16 +10,19 @@ namespace Tube_Traveller
     public partial class MainWindow : Window
     {
         TflClient _client;
+        Dictionary<string, Root> _stations = new();
 
         public MainWindow()
         {
-            InitializeComponent();
             _client = new TflClient();
             LoadStations();
+            InitializeComponent();
         }
 
         private async void LoadStations()
         {
+            TestBox.Text = "Loading...";
+            /* Getting stations through Zip-File
             Stream stream = await _client.GetDetailedStationDataStreamAsync(); //Gives Zip file as a stream from memory
 
             using (ZipArchive archive = new ZipArchive(stream)) //Setting archive to the whole zip file
@@ -57,117 +49,208 @@ namespace Tube_Traveller
                         }
                     }
                 }
-            }
-        }
+            
+            */
 
-        private async void btnInput_Click(object sender, RoutedEventArgs e)
-        {
-            ResultListBox.Items.Clear();
-            try
+
+            //Getting stations from api - 1
+            /*
+            List<object> tempStations = new List<object>();
+            var modes = await _client.GetAllModesAsync();
+
+            //Dictionary<string, Dictionary<string, List<OrderedLineRoute>>> orderedStationsByMode = new Dictionary<string, Dictionary<string, List<OrderedLineRoute>>>();
+            
+            
+            foreach (var mode in modes) //per mode
             {
-                var datas = await _client.GetArrivalsAsync(inputBox.Text);  // Gives a list of train routes 
-                if (datas.Count == 0)
+                if (mode.GetModeName() == "tube" | mode.GetModeName() == "dlr" | mode.GetModeName() == "elizabeth-line" | mode.GetModeName() == "overground" | mode.GetModeName() == "tram" | mode.GetModeName() == "cable-car")
                 {
-                    ResultListBox.Items.Add("Nothing was found");
-                }
-                else
-                {
-                    for (int i = 0; i < datas.Count; i++)
+                    var lines = await _client.GetAllLinesByModeAsync(mode.GetModeName()); 
+                    foreach (var line in lines) //per line
                     {
-                        ResultListBox.Items.Add($"Line: {datas[i].LineName} - Mode: {datas[i].ModeName}\nStation Name: {datas[i].StationName} - Current Location: {datas[i].CurrentLocation}\nDestination: {datas[i].DestinationName}\nExpected Arrival: {datas[i].ExpectedArrival.ToLocalTime()}\n\n\n");
+                        var lineRoute = await _client.GetLineRouteAsync(line.GetId(),"inbound"); //Gets information but is used for just getting stations on the line
+                        foreach (var station in lineRoute.Stations!) //per station
+                        {
+                            //stations.Add(station.Name,);
+                            if (!tempStations.Contains(station.Name!))
+                            {
+                                _stations.Add(station.Name!, station.Id!);
+                                tempStations.Add(station.Name!);
+                            }
+                        }
+
+                        lineRoute = await _client.GetLineRouteAsync(line.GetId(), "outbound"); //Gets information but is used for just getting stations on the line
+                        foreach (var station in lineRoute.Stations!) //per station
+                        {
+                            //stations.Add(station.Name,);
+                            if (!tempStations.Contains(station.Name!))
+                            {
+                                _stations.Add(station.Name!, station.StationId!);
+                                tempStations.Add(station.Name!);
+                            }
+                        }
+
                     }
                 }
+            }
+            tempStations.Sort();
+            FromComboBox.ItemsSource = tempStations;
+            ToComboBox.ItemsSource = tempStations;
+
+            
+            */
+
+
+            //Getting stations from api - 2
+            try
+            {
+                List<Root> modes = await _client.GetAllModesAsync();
+                List<string> tempStations = new();
+
+                foreach (Root mode in modes)
+                {
+
+                    if (mode.GetModeName() == "tube" | mode.GetModeName() == "dlr" | mode.GetModeName() == "elizabeth-line" | mode.GetModeName() == "overground" | mode.GetModeName() == "tram")
+                    {
+                        List<Root> lines = await _client.GetAllLinesByModeAsync(mode.GetModeName());
+                        foreach (Root line in lines)
+                        {
+                            List<Root> stations = await _client.GetAllStationsByLine(line.GetId());
+                            foreach (Root station in stations)
+                            {
+                                if (!_stations.ContainsKey(station.GetCommonName())) //No repeating stations appear
+                                {
+                                    _stations.Add(station.GetCommonName(), station);
+                                    tempStations.Add(station.GetCommonName());
+                                }
+                            }
+                        }
+                    }
+                }
+
+                tempStations.Sort();
+                FromComboBox.ItemsSource = tempStations;
+                ToComboBox.ItemsSource = tempStations;
+
+                //Should probably statuses per station only if it's bad
+
+
+                //Idea 1, make the user wait but put something to entertain
+                //Idea 2, use zip file first and when everything has loaded through api switch to that
+
+                TestBox.Text = "Stations Loaded";
             }
             catch (Exception)
             {
-                ResultListBox.Items.Add("Error, Connect to Internet?");
-                //dataDisplay.Text = "Error";
+                TestBox.Text = "Error, maybe not connected to the internet?";
             }
         }
 
-        private async void BtnTest_Click(object sender, RoutedEventArgs e)
+        private bool CheckLineStatus(string lineId) //Whether station or line
         {
-            try
+            return true;
+        }
+
+        private bool CheckStationStatus(string stationId)
+        {
+            return true;
+        }
+
+        private void Route()
+        {
+            bool sameLine = false;
+
+            //Method 1 - Compare by lines
+            /*
+             * Find lines that both stations are on
+             */
+            Root fromStation = _stations[FromComboBox.SelectionBoxItem.ToString()!]; //would like to make it station but is impossible to get without missing information
+            Root toStation = _stations[ToComboBox.SelectionBoxItem.ToString()!];
+
+            foreach (Line fromLine in fromStation.GetLines())
             {
-                //var stopPoints = await _client.GetTest(inputBox.Text);
-
-
-                //ResultListBox.Items.Clear();
-                //for (int i = 0; i < stopPoints.Count; i++) 
-                //{
-                //    string lines = "";
-                //    string children = "";
-
-                //    for (int j = 0; j < stopPoints[i].Lines.Count; j++)
-                //    {
-                //        lines += $" {stopPoints[i].Lines[j].Name},";
-                //    }
-
-                //    for (int k = 0; k < stopPoints[i].Children.Count; k++)
-                //    {
-                //        children += $" {stopPoints[i].Children[k].CommonName},";
-                //    }
-                //    TestBox.Text += $"{i}: {stopPoints[i].CommonName} \n";
-                //    ResultListBox.Items.Add($"Station Name: {stopPoints[i].CommonName}\nLines:{lines}\nChildren:{children}\n\n\n");
-
-                var modes = await _client.GetModeNameAsync();
-
-                for (var i = 0; i < modes.Count; i++)
+                foreach (Line toLine in toStation.GetLines())
                 {
-                    var routeSections = "";
-                    for (var j = 0; j < modes[i].RouteSections.Count; j++)
+                    if (fromLine.Equals(toLine))
                     {
-                        routeSections += $"{modes[i].RouteSections[j].Name}";
+                        sameLine = true;
                     }
-                    ResultListBox.Items.Add(routeSections);
                 }
             }
-            catch (Exception ex)
+
+            TestBox.Text = $"Are they on the same line: {sameLine}";
+
+            /*
+             * if (!To and From station on same line)
+             *      while (!Unknown stations on the same line)
+             *      get all stations on new lines
+             *      find 1 new line from found station
+             *      (possibility) - longitude and latitudinally find the closest station chosen for new station
+             * Iterate atleast 3 times and save into list of solutions - should seperately attempt to find a route for disabled people
+             * find time taken for all - can be through timetable call
+             * use the smallest time taken solution
+             * return route
+             */
+
+
+            //Method 2 - Use Djisktra
+            /*
+             * Make table of all stations with a distance of 1
+
+            var modes = await _client.GetAllModesAsync();
+
+
+            Dictionary<string, Dictionary<string, List<OrderedLineRoute>>> orderedStationsByMode = new Dictionary<string, Dictionary<string,List<OrderedLineRoute>>>();
+
+            foreach (var mode in modes)
             {
-                TestBox.Text = ex.Message;
-            }
+                if (mode.GetModeName() == "tube" | mode.GetModeName() == "dlr" | mode.GetModeName() == "elizabeth-line" | mode.GetModeName() == "overground" | mode.GetModeName() == "tram" | mode.GetModeName() == "cable-car")
+                {
+                    var lines = await _client.GetAllLinesByModeAsync(mode.GetModeName());
+                    Dictionary<string, List<OrderedLineRoute>> orderedStations = new Dictionary<string, List<OrderedLineRoute>>();
+
+                    foreach (var line in lines)
+                    {
+                        var lineRoute = await _client.GetLineRouteAsync(line.GetId());
+                        orderedStations.Add(line.GetName(), lineRoute.GetOrderedLineRoutes());
+                        ResultListBox.Items.Add(line.GetName());
+                    }
+                    orderedStationsByMode.Add(mode.GetModeName(), orderedStations);
+                }
+            //unfinished
+
+            *use djisktra's algorithm to find shortest route
+             * return route
+             */
         }
 
-        private async void BtnRoute_Click(object sender, RoutedEventArgs e)
+        private void BtnRoute_Click(object sender, RoutedEventArgs e)
         {
             ResultListBox.Items.Clear();
-
-            if (FromComboBox.SelectedItem == ToComboBox.SelectedItem)
+            TestBox.Clear();
+            if (FromComboBox.SelectionBoxItem.ToString() == "" | ToComboBox.SelectionBoxItem.ToString() == "")
             {
-                ResultListBox.Items.Add("Nice");
+                ResultListBox.Items.Add("You might be missing some value(s)");
             }
             else
             {
-                var modes = await _client.GetAllModesAsync();
-
-                
-                Dictionary<string, Dictionary<string, List<OrderedLineRoute>>> orderedStationsByMode = new Dictionary<string, Dictionary<string,List<OrderedLineRoute>>>();
-
-                foreach (var mode in modes)
+                if (FromComboBox.SelectionBoxItem == ToComboBox.SelectionBoxItem)
                 {
-                    if (mode.GetModeName() == "tube" | mode.GetModeName() == "dlr" | mode.GetModeName() == "elizabeth-line" | mode.GetModeName() == "overground" | mode.GetModeName() == "tram" | mode.GetModeName() == "cable-car")
-                    {
-                        var lines = await _client.GetAllLinesByModeAsync(mode.GetModeName());
-                        Dictionary<string, List<OrderedLineRoute>> orderedStations = new Dictionary<string, List<OrderedLineRoute>>();
-
-
-
-                        foreach (var line in lines)
-                        {
-                            var lineRoute = await _client.GetLineRouteAsync(line.GetId());
-                            orderedStations.Add(line.GetName(), lineRoute.GetOrderedLineRoutes());
-                            ResultListBox.Items.Add(line.GetName());
-                        }
-                        orderedStationsByMode.Add(mode.GetModeName(), orderedStations);
-                    }
+                    ResultListBox.Items.Add("Nice");
+                }
+                else
+                {
+                    Route();
+                    //find extra info fares, wifi, toilets, etc
+                    //Display all
                 }
             }
-            //Get all lines and stations corresponding to lines
-            //Method 1
-            //Lon and lat find out what stations are closests, find out if they correspond to the lines that the closest stations are on then work form there
-            //Mehtod 2
-            //Use api that has the lines set in order All inbound. Deems distances from stations 
-
         }
     }
+
+//Ideas
+/* Make a station/line viewer that displays info about it
+ * Accounts
+ * Save data to either a server or a database
+ */
 }
