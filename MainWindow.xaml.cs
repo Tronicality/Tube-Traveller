@@ -21,7 +21,7 @@ namespace Tube_Traveller
 
         private async void LoadStations()
         {
-            TestBox.Text = "Loading...";
+            //TestBox.Text = "Loading...";
             /* Getting stations through Zip-File
             Stream stream = await _client.GetDetailedStationDataStreamAsync(); //Gives Zip file as a stream from memory
 
