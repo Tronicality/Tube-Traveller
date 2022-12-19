@@ -7,8 +7,6 @@ namespace Tube_Traveller.Model
 {
     internal class Root
     {
-        [JsonProperty("$type")]
-
         //General - List<Root>
         public string? Type { get; set; }
         public string? Id { internal get; set; }
@@ -61,11 +59,12 @@ namespace Tube_Traveller.Model
         public string? StopType { get; set; }
         public string? StationNaptan { get; set; }
         public string? HubNaptanCode { get; set; }
-        public List<Line>? Lines { get; }
+        public List<Line>? Lines { internal get; set; }
         public List<Line> GetLines() => Lines!;
 
         public List<LineGroup>? LineGroup { get; set; }
-        public List<LineModeGroup>? LineModeGroups { get; set; }
+        public List<LineModeGroup>? LineModeGroups { internal get; set; }
+        public List<LineModeGroup> GetLineModeGroups() => LineModeGroups!;
         public bool Status { get; set; }
         public string? CommonName { internal get; set; }
         public string GetCommonName() => CommonName!;

@@ -4,6 +4,7 @@
     {
         public string? Type { get; set; }
         public string? Id { get; set; }
+        public string GetId() => Id!;
         public string? Name { get; set; }
         //public Crowding Crowding { get; set; }
         public string? Uri { get; set; }

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Windows;
+using System.Windows.Controls;
 using Tube_Traveller.Model;
 
 namespace Tube_Traveller
@@ -10,7 +12,8 @@ namespace Tube_Traveller
     public partial class MainWindow : Window
     {
         TflClient _client;
-        Dictionary<string, Root> _stations = new();
+        Dictionary<string, Root> _stations = new(); //stationCommonName, station
+        Dictionary<string, List<Root>> _lines = new(); //lineId, station
 
         public MainWindow()
         {
@@ -21,7 +24,6 @@ namespace Tube_Traveller
 
         private async void LoadStations()
         {
-            //TestBox.Text = "Loading...";
             /* Getting stations through Zip-File
             Stream stream = await _client.GetDetailedStationDataStreamAsync(); //Gives Zip file as a stream from memory
 
@@ -49,7 +51,6 @@ namespace Tube_Traveller
                         }
                     }
                 }
-            
             */
 
 
@@ -89,33 +90,31 @@ namespace Tube_Traveller
                                 tempStations.Add(station.Name!);
                             }
                         }
-
                     }
                 }
             }
             tempStations.Sort();
             FromComboBox.ItemsSource = tempStations;
             ToComboBox.ItemsSource = tempStations;
-
-            
             */
 
 
             //Getting stations from api - 2
+            
             try
             {
                 List<Root> modes = await _client.GetAllModesAsync();
                 List<string> tempStations = new();
-
+                
                 foreach (Root mode in modes)
                 {
-
                     if (mode.GetModeName() == "tube" | mode.GetModeName() == "dlr" | mode.GetModeName() == "elizabeth-line" | mode.GetModeName() == "overground" | mode.GetModeName() == "tram")
                     {
-                        List<Root> lines = await _client.GetAllLinesByModeAsync(mode.GetModeName());
+                        List<Root> lines = await _client.GetAllLinesByModeAsync(mode.GetModeName()); 
                         foreach (Root line in lines)
                         {
                             List<Root> stations = await _client.GetAllStationsByLine(line.GetId());
+
                             foreach (Root station in stations)
                             {
                                 if (!_stations.ContainsKey(station.GetCommonName())) //No repeating stations appear
@@ -124,6 +123,8 @@ namespace Tube_Traveller
                                     tempStations.Add(station.GetCommonName());
                                 }
                             }
+
+                            _lines.Add(line.GetId(), stations);
                         }
                     }
                 }
@@ -134,19 +135,27 @@ namespace Tube_Traveller
 
                 //Should probably statuses per station only if it's bad
 
-
                 //Idea 1, make the user wait but put something to entertain
                 //Idea 2, use zip file first and when everything has loaded through api switch to that
 
                 TestBox.Text = "Stations Loaded";
             }
-            catch (Exception)
+            catch (System.Net.Http.HttpRequestException)
             {
-                TestBox.Text = "Error, maybe not connected to the internet?";
+                TestBox.Text = "Error in loading, Connect to the internet?";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                TestBox.Text = "Error in loading stations";
             }
         }
+        private void BtnMap_Click(object sender, RoutedEventArgs e)
+        {
+            System.Diagnostics.Process.Start("https://tfl.gov.uk/maps/track"); //An attempt at a hyperlink
+        }
 
-        private bool CheckLineStatus(string lineId) //Whether station or line
+        private bool CheckLineStatus(string lineId)
         {
             return true;
         }
@@ -154,6 +163,58 @@ namespace Tube_Traveller
         private bool CheckStationStatus(string stationId)
         {
             return true;
+        }
+
+        private string RouteByLines(Root station, Root matchingStation, List<string> stations, bool sameLine)
+        {
+            Root newStation = new();
+            while (sameLine == false)
+            {
+                foreach (Line line in station.GetLines())
+                {
+                    if (_lines.ContainsKey(line.GetId())) //Checking for unwanted lines, (for example national rail lines)
+                    {
+                        foreach (Root lineStation in _lines[line.GetId()]) //All stations on the station line
+                        {
+
+                            /*
+                            foreach (var station in _stations[newLineStation]) //Would need to establish my own Enumerator, not worth as I wouldn't get any marks, will probably do it anyways for readablility
+                            {
+
+                            }
+                            */
+                            int differentKnownLines = -1;
+                            for (var i = 0; i < lineStation.GetLines().Count; i++) //All lines from chosen station
+                            {
+                                for (var j = 0; j < matchingStation.GetLines().Count; j++) //All lines on the matching station
+                                {
+                                    if (lineStation.GetLines()[i].GetId() == matchingStation.GetLines()[j].GetId() && _lines.ContainsKey(lineStation.GetId())) //Check if there's a station that shares the same line to the matching station
+                                    {
+                                        TestBox.Text += $"From Routing: Matched {lineStation.GetLines()[i].Name} at {lineStation.GetCommonName()}";
+                                        TestBox.Text += Environment.NewLine;
+
+                                        sameLine = true;
+                                        return lineStation.GetCommonName();
+                                    }
+                                    else if (station.GetId() != lineStation.GetId() && lineStation.GetLines().Count > 1 && sameLine == false) //Finding all other lines from the from station line
+                                    {
+                                        if (differentKnownLines > 0) //Checking for unwanted lines
+                                        {
+                                            newStation = _stations[lineStation.GetCommonName()];
+                                        }
+                                        else if (_lines.ContainsKey(lineStation.GetLines()[i].GetId()))
+                                        {
+                                            differentKnownLines += 1;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                stations.Add(RouteByLines(newStation, matchingStation, stations, sameLine));
+            }
+            return newStation.GetName();
         }
 
         private void Route()
@@ -164,28 +225,39 @@ namespace Tube_Traveller
             /*
              * Find lines that both stations are on
              */
-            Root fromStation = _stations[FromComboBox.SelectionBoxItem.ToString()!]; //would like to make it station but is impossible to get without missing information
+            Root fromStation = _stations[FromComboBox.SelectionBoxItem.ToString()!];
             Root toStation = _stations[ToComboBox.SelectionBoxItem.ToString()!];
+            List<string> route = new();
 
-            foreach (Line fromLine in fromStation.GetLines())
+
+            foreach (Line fromLine in fromStation.GetLines()) //All lines related to the from station
             {
-                foreach (Line toLine in toStation.GetLines())
+                foreach (Line toLine in toStation.GetLines()) //All lines related to the to station
                 {
-                    if (fromLine.Equals(toLine))
+                    if (fromLine.GetId() == toLine.GetId()) //Whether stations are on the same line
                     {
+                        TestBox.Text += $"From Route: Matched {fromLine.GetId()} ";
                         sameLine = true;
                     }
                 }
             }
 
-            TestBox.Text = $"Are they on the same line: {sameLine}";
+            route.Add(fromStation.GetCommonName());
+            RouteByLines(fromStation,toStation, route, sameLine);
+            route.Add(toStation.GetCommonName());
 
+            TestBox.Text += Environment.NewLine + "From Route";
+            foreach (var station in route)
+            {
+                TestBox.Text += station;
+                TestBox.Text += Environment.NewLine;
+            }
             /*
              * if (!To and From station on same line)
              *      while (!Unknown stations on the same line)
              *      get all stations on new lines
              *      find 1 new line from found station
-             *      (possibility) - longitude and latitudinally find the closest station chosen for new station
+             *      (possibility) - longitude and latitudinally find the closest station chosen for new station if more than one station is matched
              * Iterate atleast 3 times and save into list of solutions - should seperately attempt to find a route for disabled people
              * find time taken for all - can be through timetable call
              * use the smallest time taken solution
@@ -200,7 +272,7 @@ namespace Tube_Traveller
             var modes = await _client.GetAllModesAsync();
 
 
-            Dictionary<string, Dictionary<string, List<OrderedLineRoute>>> orderedStationsByMode = new Dictionary<string, Dictionary<string,List<OrderedLineRoute>>>();
+            Dictionary<string, Dictionary<string, List<OrderedLineRoute>>> orderedStationsByMode = new(); //mode<line<stations>>
 
             foreach (var mode in modes)
             {
@@ -243,6 +315,34 @@ namespace Tube_Traveller
                     Route();
                     //find extra info fares, wifi, toilets, etc
                     //Display all
+                }
+            }
+        }
+
+        //Testing purposes from here
+
+        private void FromComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e) //Might be used to display disruptions
+        {
+            TestBox.Clear();
+            if (FromComboBox.SelectedItem.ToString() != null)
+            {
+                TestBox.Text = FromComboBox.SelectedItem.ToString() + "lines:";
+                for (int i = 0; i < _stations[FromComboBox.SelectedItem.ToString()].GetLines().Count; i++)
+                {
+                    TestBox.Text += $"{Environment.NewLine}{_stations[FromComboBox.SelectedItem.ToString()].GetLines()[i].Name}"; //Finding out what lines are on the chosen station
+                }
+            }
+        }
+
+        private void ToComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e) //Might be used to display disruptions
+        {
+            TestBox.Clear();
+            if (ToComboBox.SelectedItem.ToString() != null)
+            {
+                TestBox.Text = ToComboBox.SelectedItem.ToString() + "lines:";
+                for (int i = 0; i < _stations[ToComboBox.SelectedItem.ToString()].GetLines().Count; i++)
+                {
+                    TestBox.Text += $"{Environment.NewLine}{_stations[ToComboBox.SelectedItem.ToString()].GetLines()[i].Name}"; //Finding out what lines are on the chosen station
                 }
             }
         }

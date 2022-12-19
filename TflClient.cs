@@ -23,13 +23,9 @@ namespace Tube_Traveller
 
         public async Task<List<Root>> GetAllModesAsync()
         {
-            try
-            {
-                var responseBody = await _client.GetStringAsync($"https://api.tfl.gov.uk/Line/Meta/Modes"); //Getting json from api
-                var root = JsonConvert.DeserializeObject<List<Root>>(responseBody); //Turning json into readable classes
-                return root!;
-            }
-            catch (Exception ex) { Console.WriteLine(ex.Message); return new List<Root>(); }
+            var responseBody = await _client.GetStringAsync($"https://api.tfl.gov.uk/Line/Meta/Modes"); //Getting json from api
+            var root = JsonConvert.DeserializeObject<List<Root>>(responseBody); //Turning json into readable classes
+            return root!;
         }
         public async Task<List<Root>> GetAllLinesByModeAsync(string mode)
         {
@@ -93,7 +89,7 @@ namespace Tube_Traveller
         {
             try
             {
-                var responseBody = await _client.GetStringAsync($"https://api.tfl.gov.uk/StopPoint/{originatingStationId}/DirectionTo/{destinationStationId}{lineId}");
+                var responseBody = await _client.GetStringAsync($"https://api.tfl.gov.uk/StopPoint/{originatingStationId}/DirectionTo/{destinationStationId}/{lineId}");
                 var root = JsonConvert.DeserializeObject<List<Root>>(responseBody);
                 return root!;
             }
