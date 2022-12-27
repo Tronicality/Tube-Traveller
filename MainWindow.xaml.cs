@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -53,87 +54,37 @@ namespace Tube_Traveller
                 }
             */
 
-
-            //Getting stations from api - 1
-            /*
-            List<object> tempStations = new List<object>();
-            var modes = await _client.GetAllModesAsync();
-
-            //Dictionary<string, Dictionary<string, List<OrderedLineRoute>>> orderedStationsByMode = new Dictionary<string, Dictionary<string, List<OrderedLineRoute>>>();
-            
-            
-            foreach (var mode in modes) //per mode
-            {
-                if (mode.GetModeName() == "tube" | mode.GetModeName() == "dlr" | mode.GetModeName() == "elizabeth-line" | mode.GetModeName() == "overground" | mode.GetModeName() == "tram" | mode.GetModeName() == "cable-car")
-                {
-                    var lines = await _client.GetAllLinesByModeAsync(mode.GetModeName()); 
-                    foreach (var line in lines) //per line
-                    {
-                        var lineRoute = await _client.GetLineRouteAsync(line.GetId(),"inbound"); //Gets information but is used for just getting stations on the line
-                        foreach (var station in lineRoute.Stations!) //per station
-                        {
-                            //stations.Add(station.Name,);
-                            if (!tempStations.Contains(station.Name!))
-                            {
-                                _stations.Add(station.Name!, station.Id!);
-                                tempStations.Add(station.Name!);
-                            }
-                        }
-
-                        lineRoute = await _client.GetLineRouteAsync(line.GetId(), "outbound"); //Gets information but is used for just getting stations on the line
-                        foreach (var station in lineRoute.Stations!) //per station
-                        {
-                            //stations.Add(station.Name,);
-                            if (!tempStations.Contains(station.Name!))
-                            {
-                                _stations.Add(station.Name!, station.StationId!);
-                                tempStations.Add(station.Name!);
-                            }
-                        }
-                    }
-                }
-            }
-            tempStations.Sort();
-            FromComboBox.ItemsSource = tempStations;
-            ToComboBox.ItemsSource = tempStations;
-            */
-
-
-            //Getting stations from api - 2
+            //Getting stations from api 
             
             try
             {
-                List<Root> modes = await _client.GetAllModesAsync();
+                //List<Root> modes = await _client.GetAllModesAsync();
                 List<string> tempStations = new();
-                
-                foreach (Root mode in modes)
+
+                //Removed lines that isn't tube as I didn't consider it being part of the underground (for example overground)
+
+                List<Root> lines = await _client.GetAllLinesByModeAsync("tube");
+                foreach (Root line in lines)
                 {
-                    if (mode.GetModeName() == "tube" | mode.GetModeName() == "dlr" | mode.GetModeName() == "elizabeth-line" | mode.GetModeName() == "overground" | mode.GetModeName() == "tram")
+                    List<Root> stations = await _client.GetAllStationsByLine(line.GetId());
+
+                    foreach (Root station in stations)
                     {
-                        List<Root> lines = await _client.GetAllLinesByModeAsync(mode.GetModeName()); 
-                        foreach (Root line in lines)
+                        if (!_stations.ContainsKey(station.GetCommonName())) //No repeating stations appear
                         {
-                            List<Root> stations = await _client.GetAllStationsByLine(line.GetId());
-
-                            foreach (Root station in stations)
-                            {
-                                if (!_stations.ContainsKey(station.GetCommonName())) //No repeating stations appear
-                                {
-                                    _stations.Add(station.GetCommonName(), station);
-                                    tempStations.Add(station.GetCommonName());
-                                }
-                            }
-
-                            _lines.Add(line.GetId(), stations);
+                            _stations.Add(station.GetCommonName(), station);
+                            tempStations.Add(station.GetCommonName());
                         }
                     }
+
+                    _lines.Add(line.GetId(), stations);
                 }
 
                 tempStations.Sort();
                 FromComboBox.ItemsSource = tempStations;
                 ToComboBox.ItemsSource = tempStations;
 
-                //Should probably statuses per station only if it's bad
+                //Should probably check statuses per station only if it's bad
 
                 //Idea 1, make the user wait but put something to entertain
                 //Idea 2, use zip file first and when everything has loaded through api switch to that
@@ -165,44 +116,84 @@ namespace Tube_Traveller
             return true;
         }
 
-        private string RouteByLines(Root station, Root matchingStation, List<string> stations, bool sameLine)
+        public static double Squared(double x)
         {
+            return x * x;
+        }
+
+        private List<string> RouteByLines(Root givenStation, Root matchingStation, List<string> stations, bool sameLine, List<string> preCheckedLineIds, ref int iteration) // problem if line isn't fully connected (for example overground)
+        {
+            iteration += 1;
             Root newStation = new();
-            while (sameLine == false)
+
+            double currentStationDistance = Math.Sqrt(Squared(matchingStation.Lon - newStation.Lon) + Squared(matchingStation.Lat - newStation.Lat));
+            if (newStation.GetCommonName() != null) //
             {
-                foreach (Line line in station.GetLines())
+                currentStationDistance = Math.Sqrt(Squared(matchingStation.Lon - newStation.Lon) + Squared(matchingStation.Lat - newStation.Lat));
+            }
+            else
+            {
+                currentStationDistance = 0.0;
+            }
+
+            if (sameLine == false)
+            {
+                foreach (Line line in givenStation.GetLines())
                 {
-                    if (_lines.ContainsKey(line.GetId())) //Checking for unwanted lines, (for example national rail lines)
+                    bool preCheckedLine = false; 
+
+
+                    for (var i = 0; i < preCheckedLineIds.Count; i++)
                     {
-                        foreach (Root lineStation in _lines[line.GetId()]) //All stations on the station line
+                        if (line.GetId() == preCheckedLineIds[i])
                         {
+                            preCheckedLine = true;
+                        }
+                    }
 
-                            /*
-                            foreach (var station in _stations[newLineStation]) //Would need to establish my own Enumerator, not worth as I wouldn't get any marks, will probably do it anyways for readablility
-                            {
+                    if (_lines.ContainsKey(line.GetId()) && preCheckedLine == false) //Checking for unwanted and pre-checked lines, (for example national rail lines)
+                    {
+                        foreach (Root station in _lines[line.GetId()]) //All stations on the givenStation line
+                        {
+                            double newStationDistance = Math.Sqrt(Squared(matchingStation.Lon - station.Lon) + Squared(matchingStation.Lat - station.Lat));
+                            
 
-                            }
-                            */
                             int differentKnownLines = -1;
-                            for (var i = 0; i < lineStation.GetLines().Count; i++) //All lines from chosen station
+                            for (var i = 0; i < station.GetLines().Count; i++) //All lines from chosen station
                             {
                                 for (var j = 0; j < matchingStation.GetLines().Count; j++) //All lines on the matching station
                                 {
-                                    if (lineStation.GetLines()[i].GetId() == matchingStation.GetLines()[j].GetId() && _lines.ContainsKey(lineStation.GetId())) //Check if there's a station that shares the same line to the matching station
+                                    if (station.GetLines()[i].GetId() == matchingStation.GetLines()[j].GetId() && _lines.ContainsKey(station.GetLines()[i].GetId())) //Check if there's a station that shares the same line to the matching station
                                     {
-                                        TestBox.Text += $"From Routing: Matched {lineStation.GetLines()[i].Name} at {lineStation.GetCommonName()}";
+                                        TestBox.Text += $"From Routing: Matched {station.GetLines()[i].Name} at {station.GetCommonName()}";
                                         TestBox.Text += Environment.NewLine;
 
                                         sameLine = true;
-                                        return lineStation.GetCommonName();
+                                        
+                                        if (stations.Count > iteration)
+                                        {
+                                            stations.RemoveAt(stations.Count - 1);
+                                        }
+                                        
+                                        stations.Add(station.GetCommonName());
                                     }
-                                    else if (station.GetId() != lineStation.GetId() && lineStation.GetLines().Count > 1 && sameLine == false) //Finding all other lines from the from station line
+                                    else if (givenStation.GetId() != station.GetId() && station.GetLines().Count > 1 && sameLine == false) //Finding all other lines from the from station line
                                     {
                                         if (differentKnownLines > 0) //Checking for unwanted lines
                                         {
-                                            newStation = _stations[lineStation.GetCommonName()];
+                                            if (currentStationDistance == 0.0) //Whether the newStation is null
+                                            {
+                                                newStation = _stations[station.GetCommonName()];
+                                                currentStationDistance = newStationDistance;
+                                            }
+                                            else if (newStationDistance < currentStationDistance) //Whether a different station than the currentStation towards the matched station
+                                            {
+                                                newStation = _stations[station.GetCommonName()];
+                                                currentStationDistance = newStationDistance;
+                                            }
                                         }
-                                        else if (_lines.ContainsKey(lineStation.GetLines()[i].GetId()))
+
+                                        if (_lines.ContainsKey(station.GetLines()[i].GetId()));
                                         {
                                             differentKnownLines += 1;
                                         }
@@ -210,68 +201,37 @@ namespace Tube_Traveller
                                 }
                             }
                         }
+                        preCheckedLineIds.Add(line.GetId());
                     }
                 }
-                stations.Add(RouteByLines(newStation, matchingStation, stations, sameLine));
-            }
-            return newStation.GetName();
-        }
 
-        private void Route()
-        {
-            bool sameLine = false;
-
-            //Method 1 - Compare by lines
-            /*
-             * Find lines that both stations are on
-             */
-            Root fromStation = _stations[FromComboBox.SelectionBoxItem.ToString()!];
-            Root toStation = _stations[ToComboBox.SelectionBoxItem.ToString()!];
-            List<string> route = new();
-
-
-            foreach (Line fromLine in fromStation.GetLines()) //All lines related to the from station
-            {
-                foreach (Line toLine in toStation.GetLines()) //All lines related to the to station
+                if (sameLine == false) //Only used for when there's more than 1 change of lines
                 {
-                    if (fromLine.GetId() == toLine.GetId()) //Whether stations are on the same line
-                    {
-                        TestBox.Text += $"From Route: Matched {fromLine.GetId()} ";
-                        sameLine = true;
-                    }
+                    stations.Add(newStation.GetCommonName());
+                    stations = RouteByLines(newStation, matchingStation, stations, sameLine, preCheckedLineIds, ref iteration);
                 }
             }
+            return stations;
 
-            route.Add(fromStation.GetCommonName());
-            RouteByLines(fromStation,toStation, route, sameLine);
-            route.Add(toStation.GetCommonName());
-
-            TestBox.Text += Environment.NewLine + "From Route";
-            foreach (var station in route)
-            {
-                TestBox.Text += station;
-                TestBox.Text += Environment.NewLine;
-            }
             /*
              * if (!To and From station on same line)
              *      while (!Unknown stations on the same line)
              *      get all stations on new lines
              *      find 1 new line from found station
-             *      (possibility) - longitude and latitudinally find the closest station chosen for new station if more than one station is matched
-             * Iterate atleast 3 times and save into list of solutions - should seperately attempt to find a route for disabled people
+             *      (possibility) - longitude and latitudinally find the closest station chosen for new station if more than one station is matched - problem that I wouldn't know if this method is truly the fastest route
+             * Iterate atleast 3 times and save into list of solutions - should seperately attempt to find a route for disabled people - i forgor :skull:
              * find time taken for all - can be through timetable call
              * use the smallest time taken solution
              * return route
              */
+        }
 
-
-            //Method 2 - Use Djisktra
-            /*
-             * Make table of all stations with a distance of 1
-
+        private async System.Threading.Tasks.Task<string> RouteByDjikstra() //unfinished
+        {
+            // * Make table of all stations with a distance of 1
+            //Idea: await FastRouting_Unchecked()
+            
             var modes = await _client.GetAllModesAsync();
-
-
             Dictionary<string, Dictionary<string, List<OrderedLineRoute>>> orderedStationsByMode = new(); //mode<line<stations>>
 
             foreach (var mode in modes)
@@ -281,19 +241,68 @@ namespace Tube_Traveller
                     var lines = await _client.GetAllLinesByModeAsync(mode.GetModeName());
                     Dictionary<string, List<OrderedLineRoute>> orderedStations = new Dictionary<string, List<OrderedLineRoute>>();
 
-                    foreach (var line in lines)
+                    foreach (Root line in lines)
                     {
-                        var lineRoute = await _client.GetLineRouteAsync(line.GetId());
+                        var lineRoute = await _client.GetLineRouteByLineAsync(line.GetId(), "inbound");
                         orderedStations.Add(line.GetName(), lineRoute.GetOrderedLineRoutes());
                         ResultListBox.Items.Add(line.GetName());
                     }
                     orderedStationsByMode.Add(mode.GetModeName(), orderedStations);
                 }
-            //unfinished
+            }
 
-            *use djisktra's algorithm to find shortest route
-             * return route
-             */
+            return "";
+            // *use djisktra's algorithm to find shortest route
+            //* return route
+        }
+
+        private async void Route()
+        {
+
+            // I currently don't know which one is faster, by the end i'll find out which is faster and set it to that certain routing method
+
+            if ((bool)FastRouting.IsChecked!)//Method 1 - Compare by lines
+            {
+                bool sameLine = false;
+
+                
+                /*
+                 * Find lines that both stations are on
+                 */
+                Root fromStation = _stations[FromComboBox.SelectionBoxItem.ToString()!];
+                Root toStation = _stations[ToComboBox.SelectionBoxItem.ToString()!];
+
+
+                foreach (Line fromLine in fromStation.GetLines()) //All lines related to the from station
+                {
+                    foreach (Line toLine in toStation.GetLines()) //All lines related to the to station
+                    {
+                        if (fromLine.GetId() == toLine.GetId()) //Whether stations are on the same line
+                        {
+                            TestBox.Text += $"From Route: Matched {fromLine.GetId()} ";
+                            sameLine = true;
+                        }
+                    }
+                }
+
+                List<string> route = new();
+                List<string> lineIds = new();
+                int iteration = 0;
+
+                route.Add(toStation.GetCommonName());
+                RouteByLines(fromStation, toStation, route, sameLine, lineIds, ref iteration);
+                route.Add(fromStation.GetCommonName());
+                TestBox.Text += $"Iterations - {iteration}";
+
+                foreach (var station in route)
+                {
+                    ResultListBox.Items.Add(station);
+                }
+            }
+            else //Method 2 - Use Djisktra
+            {
+                await RouteByDjikstra();
+            }
         }
 
         private void BtnRoute_Click(object sender, RoutedEventArgs e)
@@ -326,7 +335,7 @@ namespace Tube_Traveller
             TestBox.Clear();
             if (FromComboBox.SelectedItem.ToString() != null)
             {
-                TestBox.Text = FromComboBox.SelectedItem.ToString() + "lines:";
+                TestBox.Text = $"{FromComboBox.SelectedItem.ToString()} Lon - {_stations[FromComboBox.SelectedItem.ToString()].Lon} Lat - {_stations[FromComboBox.SelectedItem.ToString()].Lat}";
                 for (int i = 0; i < _stations[FromComboBox.SelectedItem.ToString()].GetLines().Count; i++)
                 {
                     TestBox.Text += $"{Environment.NewLine}{_stations[FromComboBox.SelectedItem.ToString()].GetLines()[i].Name}"; //Finding out what lines are on the chosen station
@@ -339,12 +348,17 @@ namespace Tube_Traveller
             TestBox.Clear();
             if (ToComboBox.SelectedItem.ToString() != null)
             {
-                TestBox.Text = ToComboBox.SelectedItem.ToString() + "lines:";
+                TestBox.Text = $"{ToComboBox.SelectedItem.ToString()} Lon - {_stations[ToComboBox.SelectedItem.ToString()].Lon} Lat  - {_stations[ToComboBox.SelectedItem.ToString()].Lat}";
                 for (int i = 0; i < _stations[ToComboBox.SelectedItem.ToString()].GetLines().Count; i++)
                 {
                     TestBox.Text += $"{Environment.NewLine}{_stations[ToComboBox.SelectedItem.ToString()].GetLines()[i].Name}"; //Finding out what lines are on the chosen station
                 }
             }
+        }
+
+        private async void FastRouting_Unchecked(object sender, RoutedEventArgs e) 
+        {
+            //Create Djisktras table
         }
     }
 

@@ -20,5 +20,6 @@
         <Button x:Name="BtnRoute" Content="Route" HorizontalAlignment="Left" Height="50" Margin="294,69,0,0" VerticalAlignment="Top" Width="116" Click="BtnRoute_Click"/>
         <Label Content="From:" HorizontalAlignment="Left" Height="24" Margin="22,65,0,0" VerticalAlignment="Top" Width="54"/>
         <Label Content="To:" HorizontalAlignment="Left" Height="30" Margin="37,99,0,0" VerticalAlignment="Top" Width="39"/>
+        <CheckBox x:Name="FastRouting" Content="Faster but less reliable routing" HorizontalAlignment="Left" Height="21" Margin="294,43,0,0" VerticalAlignment="Top" Width="187" IsChecked="True" Grid.ColumnSpan="2" Unchecked="FastRouting_Unchecked"/>
     </Grid>
 </Window>
