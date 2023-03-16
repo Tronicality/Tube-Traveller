@@ -1,0 +1,17 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Tube_Traveller.Model
+{
+    internal class Earliest
+    {
+        public string Type { get; set; }
+        public string Date { get; set; }
+        public string Time { get; set; }
+        public string TimeIs { get; set; }
+        public string Uri { get; set; }
+    }
+}

@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Tube_Traveller
+namespace Tube_Traveller.Model
 {
-    internal class Route
+    internal class PathAttribute
     {
+        public string Type { get; set; }
     }
 }

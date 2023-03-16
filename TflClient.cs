@@ -13,7 +13,7 @@ namespace Tube_Traveller
     {
         private readonly HttpClient _client = new HttpClient();
         //private const string appkey = "?app_key=%20497eeeec89d74dd7b963b24a0f6a3b9a"; //Key to allow up to 500 calls
-        // API Taken from https://api-portal.tfl.gov.uk/api-details#api=Line&operation=Forward_Proxy
+        // API Taken from https://api-portal.tfl.gov.uk/api-details#api=ReleasedUnifiedAPIProd&operation=AccidentStats_Get
 
         public async Task<Stream> GetDetailedStationDataStreamAsync()
         {
@@ -29,13 +29,9 @@ namespace Tube_Traveller
         }
         public async Task<List<Root>> GetAllLinesByModeAsync(string mode)
         {
-            try
-            {
                 var responseBody = await _client.GetStringAsync($"https://api.tfl.gov.uk/Line/Mode/{mode}/Route");
                 var root = JsonConvert.DeserializeObject<List<Root>>(responseBody);
                 return root!;
-            }
-            catch (Exception ex) { Console.WriteLine(ex.Message); return new List<Root>(); }
         }
 
         public async Task<Root> GetLineRouteByLineAsync(string lineId, string direction)
@@ -97,6 +93,22 @@ namespace Tube_Traveller
             {
                 Console.WriteLine(ex.Message); throw;
             }
+        }
+
+        public async Task<List<Root>> GetFares(string fromStationId, string toStationId) //Still need to implement into root
+        {
+            var responseBody = await _client.GetStringAsync($"https://api.tfl.gov.uk/Stoppoint/{fromStationId}/FareTo/{toStationId}"); 
+            var root = JsonConvert.DeserializeObject<List<Root>>(responseBody);
+            return root!;
+        }
+
+        public async Task<Root> GetJourney(string fromStationId, string toStationId, string time, string depArr) 
+        {
+            //&date={date}
+
+            var responseBody = await _client.GetStringAsync($"https://api.tfl.gov.uk/Journey/JourneyResults/{fromStationId}/to/{toStationId}?time={time}&timeIs={depArr}&mode=tube");
+            var root = JsonConvert.DeserializeObject<Root>(responseBody);
+            return root!;
         }
     }
 }

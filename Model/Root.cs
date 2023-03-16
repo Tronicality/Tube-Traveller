@@ -85,5 +85,14 @@ namespace Tube_Traveller.Model
         //public List<StopPointSequence> StopPointSequences { get; set; }
         public List<OrderedLineRoute>? OrderedLineRoutes { internal get; set; }
         public List<OrderedLineRoute> GetOrderedLineRoutes() => OrderedLineRoutes!;
+
+        //Journey
+        //public string Type { get; set; }
+        public List<Journey>? Journeys { get; set; }
+        //public List<Line> Lines { get; set; }
+        //public List<object> StopMessages { get; set; }
+        //public int RecommendedMaxAgeMinutes { get; set; }
+        public SearchCriteria SearchCriteria { get; set; }
+        //public JourneyVector JourneyVector { get; set; }
     }
 }
