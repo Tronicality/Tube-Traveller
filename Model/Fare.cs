@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace Tube_Traveller.Model
 {
     internal class Fare
     {
-        public string Type { get; set; }
-        public int TotalCost { get; set; }
-        public List<Fare> Fares { get; set; }
-        public List<Caveat> Caveats { get; set; }
+        public string? Type { get; set; }
+        public int? TotalCost { get; set; }
+        public List<Fare>? Fares { get; set; }
+        public List<Caveat>? Caveats { get; set; }
     }
 }

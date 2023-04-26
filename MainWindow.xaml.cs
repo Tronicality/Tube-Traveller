@@ -1,32 +1,25 @@
-﻿using Microsoft.Data.Sqlite;
-using System;
-using System.CodeDom;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography.X509Certificates;
 using System.Windows;
 using System.Windows.Controls;
 using Tube_Traveller.Model;
+using Tube_Traveller.Accounts;
+using System.Diagnostics;
 
 namespace Tube_Traveller
 {
-    //Ideas
-    /*todo Make a station/line viewer that displays info about it
-    *todo Accounts, for: home station, DOB, fare payment type, 
-     *todo Save data to either a server or a database
-     *todo Use DB in future because it be easy 
-     */
     public partial class MainWindow : Window
     {
-        TflClient _client;
+        //todo Options page where you can change account settings
+
+        Account? userAccount = new();
+        TflClient _client = new();
         Dictionary<string, Root> _stations = new(); //key: stationCommonName, value: station
         Dictionary<string, List<Root>> _lines = new(); //key: lineId, value: station
 
         public MainWindow()
         {
-            _client = new TflClient();
             LoadStations();
             InitializeComponent();
         }
@@ -36,16 +29,11 @@ namespace Tube_Traveller
             //Getting stations from api             
             try
             {
-                //List<Root> modes = await _client.GetAllModesAsync();
                 List<string> tempStations = new();
-
-                //Removed lines that isn't tube as I didn't consider it being part of the underground (for example overground)
-
                 List<Root> lines = await _client.GetAllLinesByModeAsync("tube");
                 foreach (Root line in lines)
                 {
                     List<Root> stations = await _client.GetAllStationsByLine(line.GetId());
-
                     foreach (Root station in stations)
                     {
                         if (!_stations.ContainsKey(station.GetCommonName())) //No repeating stations appear
@@ -59,13 +47,18 @@ namespace Tube_Traveller
                 }
 
                 tempStations.Sort();
-                FromComboBox.ItemsSource = tempStations;
-                ToComboBox.ItemsSource = tempStations;
+
+                for (int i = 0; i < tempStations.Count; i++)
+                {
+                    FromComboBox.Items.Add(tempStations[i]);
+                    ToComboBox.Items.Add(tempStations[i]);
+                }
+
+                //FromComboBox.ItemsSource = tempStations;
+                //ToComboBox.ItemsSource = tempStations;
+
 
                 //Should probably check statuses per station only if it's bad
-
-                //Idea 1, make the user wait but put something to entertain
-                //Idea 2, use zip file first and when everything has loaded through api switch to that
 
                 MainBox.Text = "Stations Loaded";
             }
@@ -75,121 +68,54 @@ namespace Tube_Traveller
             }
             catch (Exception ex) //Any other error that I wouldn't know
             {
-                Console.WriteLine(ex.Message);
+                Debug.WriteLine(ex.Message);
                 MainBox.Text = "Error in loading stations";
             }
-            //Server side error
         }
         private void BtnMap_Click(object sender, RoutedEventArgs e)
         {
-            //System.Diagnostics.Process.Start("https://tfl.gov.uk/maps/track"); //An attempt at a hyperlink
             System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("https://tfl.gov.uk/maps/track") { UseShellExecute = true });
         }
 
-        private async void ExtraRoutingInformation()
+        private void AccountBtn_Click(object sender, RoutedEventArgs e)
         {
-            RouteInfo.Clear();
-            //todo find toilets
-
-            /*  for each station except the last one in route
-            *  Find station departure time
-            *  Display: station name - departure time
-            *  Find time taken to get to next station
-            *  Give user atleast {time} minutes to walk since the calculated time after time taken
-            */
-
-            //todo Implement Date in future
-            //TestBox.Text = Date.SelectedDate.HasValue ? (Date.SelectedDate.Value.Year.ToString() + ((Convert.ToInt32(Date.SelectedDate.Value.Month) < 10) ? "0" + Date.SelectedDate.Value.Month.ToString() : Date.SelectedDate.Value.Month.ToString()) + ((Convert.ToInt16(Date.SelectedDate.Value.Day) < 10) ? "0" + Date.SelectedDate.Value.Day.ToString() : Date.SelectedDate.Value.Day.ToString())) : (Date.DisplayDate.Year.ToString() + ((Convert.ToInt16(Date.DisplayDate.Month) < 10) ? "0" + Date.DisplayDate.Month.ToString() : Date.DisplayDate.Month.ToString()) + ((Convert.ToInt16(Date.DisplayDate.Day) < 10) ? "0" + Date.SelectedDate.Value.Day.ToString() : Date.SelectedDate.Value.Day.ToString()));
-
-
-            if (FromComboBox.SelectedItem.ToString() != null && ToComboBox.SelectedItem.ToString() != null)
+            if (AccountBtn.Content.ToString() == "Sign Out") //Logout
             {
-                if (ResultListBox.Items.Count == 2)
-                {
-                    Root Journey = await _client.GetJourney(_stations[FromComboBox.SelectedItem.ToString()].Id, _stations[ToComboBox.SelectedItem.ToString()].Id, DateTime.Now.ToString("HHmm"), "departing");
-                    RouteInfo.Text += $"Fare - £{Journey.Journeys[0].Fare.TotalCost.ToString().Insert(Journey.Journeys[0].Fare.TotalCost.ToString().Length - 2, ".")}";
-                    RouteInfo.Text += $"\nDuration - {Journey.Journeys[0].Duration} minutes";
-                }
-                else if (ResultListBox.Items.Count == 3)
-                {
-                    Root Journey = await _client.GetJourney(_stations[FromComboBox.SelectedItem.ToString()].Id, _stations[ToComboBox.SelectedItem.ToString()].Id, DateTime.Now.ToString("HHmm"), "departing");
-                    RouteInfo.Text += $"Fare - £{Journey.Journeys[0].Fare.TotalCost.ToString().Insert(Journey.Journeys[0].Fare.TotalCost.ToString().Length - 2, ".")}";
-                    RouteInfo.Text += $"\nDuration - {Journey.Journeys[0].Duration} minutes";
-                }
-                /*
-                 * List<Root> Fares = await _client.GetFares(_stations[FromComboBox.SelectedItem.ToString()].Id, _stations[ToComboBox.SelectedItem.ToString()].Id);
-                 * 
-                else
-                {
-                    for (int i = 0; i < ResultListBox.Items.Count; i++)
-                    {
-                        if (i < ResultListBox.Items.Count - 1)
-                        {
-                            Root Journey = await _client.GetJourney(ResultListBox.Items.GetItemAt(0).ToString(), ResultListBox[i + 1].Id, DateTime.Now.ToString("HHmm"), "departing");
-
-                        }
-                    }
-                }
-                */
+                Logout();
+            }
+            else
+            {
+                Login();
             }
         }
 
-        private async System.Threading.Tasks.Task<string> RouteByDjikstra() //unfinished
+        private void Logout()
         {
-            //todo Make table of all stations with a distance of 1
-            //todo Idea: await FastRouting_Unchecked() - used as check for whether station table has been created
-            
+            userAccount = null;
+            AccountBtn.Content = "Sign In";
 
-            var lines = await _client.GetAllLinesByModeAsync("tube");
-            Dictionary<string, List<OrderedLineRoute>> orderedStations = new Dictionary<string, List<OrderedLineRoute>>();
-
-            foreach (Root line in lines)
-            {
-                var lineRoute = await _client.GetLineRouteByLineAsync(line.GetId(), "inbound");
-                orderedStations.Add(line.GetName(), lineRoute.GetOrderedLineRoutes());
-                ResultListBox.Items.Add(line.GetName());
-            }
-            return "";
-            // *use djisktra's algorithm to find shortest route
-            //* return route
+            _stations.Remove("Home Station");
+            FromComboBox.Items.RemoveAt(0);
+            ToComboBox.Items.RemoveAt(0);
         }
 
-        private void Route()
+        private void Login()
         {
-            List<Root> route = new(); //Contains stations to switch lines at unless the 2 stations chosen are the same line
-            RoutingCalculations routing = new RoutingCalculations(_client, _stations, _lines);
-            // I currently don't know which one is faster, by the end i'll find out which is faster and set it to that certain routing method
+            LoginWindow loginWindow = new();
+            loginWindow.SetStations(_stations.Keys.ToList());
+            bool? result = loginWindow.ShowDialog();
 
-            if ((bool)FastRouting.IsChecked!)//Method 1 - Compare by lines
+            if (result == true) //New account has been made or account has been logged into
             {
+                userAccount = loginWindow.GetAccount();
+                AccountBtn.Content = "Sign Out";
 
-                bool sameLine = false;
-                Root fromStation = _stations[FromComboBox.SelectionBoxItem.ToString()!];
-                Root toStation = _stations[ToComboBox.SelectionBoxItem.ToString()!];
-
-                foreach (Line fromLine in fromStation.GetLines()) //All lines related to the from station
+                if (userAccount?.GetHomeStation() != "")
                 {
-                    foreach (Line toLine in toStation.GetLines()) //All lines related to the to station
-                    {
-                        if (fromLine.GetId() == toLine.GetId()) //Whether stations are on the same line
-                        {
-                            //TestBox.Text += $"From Route: Matched {fromLine.GetId()}";
-                            MainBox.Text += $"Take the {fromLine.Id} line";
-                            sameLine = true;
-                        }
-                    }
+                    _stations.Add("Home Station", _stations?[userAccount?.GetHomeStation()]);
+                    FromComboBox.Items.Insert(0, "Home Station");
+                    ToComboBox.Items.Insert(0, "Home Station");
                 }
-                
-                route.Concat(routing.RouteByLines(fromStation, toStation, route, sameLine, new List<string>(), 0));
-            }
-            else //Method 2 - Use Djisktra
-            {
-               //route.Concat(routing.RouteByDjikstra());
-            }
-
-            foreach (Root station in route)
-            {
-                ResultListBox.Items.Add(station.GetCommonName());
             }
         }
 
@@ -211,8 +137,69 @@ namespace Tube_Traveller
                 {
                     Route();
                     ExtraRoutingInformation();
-                    //Display all
                 }
+            }
+        }
+
+        private async void Route()
+        {
+            List<Root> route = new(); //Contains stations to switch lines at unless the 2 stations chosen are the same line
+            RoutingCalculations routing = new RoutingCalculations(_client, _stations, _lines);
+            // I currently don't know which one is faster, by the end i'll find out which is faster and set it to that certain routing method
+
+            if ((bool)FastRouting.IsChecked!)//Method 1 - Compare by lines
+            {
+
+                bool sameLine = false;
+                Root fromStation = _stations[FromComboBox.SelectionBoxItem.ToString()!];
+                Root toStation = _stations[ToComboBox.SelectionBoxItem.ToString()!];
+
+                foreach (Line fromLine in fromStation.GetLines()) //All lines related to the from station
+                {
+                    foreach (Line toLine in toStation.GetLines()) //All lines related to the to station
+                    {
+                        if (fromLine.GetId() == toLine.GetId()) //Whether stations are on the same line
+                        {
+                            try
+                            {
+                                if (_lines[fromLine.GetId()] is not null)
+                                {
+                                    MainBox.Text += $"Take the {fromLine.Id} line\n";
+                                    sameLine = true;
+                                }
+                            }
+                            catch (Exception)
+                            {
+                                continue;
+                            }
+                        }
+                    }
+                }
+                
+                route.Concat(routing.RouteByLines(fromStation, toStation, route, sameLine, new List<string>(), 0));
+            }
+            else //Method 2 - Use Djisktra
+            {
+               route.Concat(await routing.RouteByDjikstra());
+            }
+
+            foreach (Root station in route)
+            {
+                ResultListBox.Items.Add(station.GetCommonName());
+            }
+        }
+
+        private async void ExtraRoutingInformation()
+        {
+            RouteInfo.Clear();
+
+            if (FromComboBox.SelectedItem.ToString() != null && ToComboBox.SelectedItem.ToString() != null)
+            {
+                Root Journey = await _client.GetJourney(_stations[FromComboBox.SelectedItem.ToString()].Id, _stations[ToComboBox.SelectedItem.ToString()].Id, DateTime.Now.ToString("HHmm"), "departing");
+                RouteInfo.Text += $"Fare - £{Journey.Journeys[0].Fare.TotalCost.ToString().Insert(Journey.Journeys[0].Fare.TotalCost.ToString().Length - 2, ".")}";
+                RouteInfo.Text += $"\nDuration - {Journey.Journeys[0].Duration} minutes";
+                RouteInfo.Text += $"\n\nShows single fare payment ONLY";
+
             }
         }
 

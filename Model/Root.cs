@@ -1,7 +1,5 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Windows.Navigation;
 
 namespace Tube_Traveller.Model
 {
@@ -92,7 +90,7 @@ namespace Tube_Traveller.Model
         //public List<Line> Lines { get; set; }
         //public List<object> StopMessages { get; set; }
         //public int RecommendedMaxAgeMinutes { get; set; }
-        public SearchCriteria SearchCriteria { get; set; }
+        public SearchCriteria? SearchCriteria { get; set; }
         //public JourneyVector JourneyVector { get; set; }
     }
 }
