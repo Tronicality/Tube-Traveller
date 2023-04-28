@@ -1,19 +1,17 @@
-﻿using System;
+﻿using Microsoft.VisualBasic;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Printing;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
-using System.Windows;
 using Tube_Traveller.Model;
 
 namespace Tube_Traveller
 {
     class RoutingCalculations
     {
-        private static TflClient? _client;
-        private static Dictionary<string, Root> _stations = new(); //key: stationCommonName, value: station
-        private static Dictionary<string, List<Root>> _lines = new(); //key: lineId, value: station
+        private TflClient _client;
+        private Dictionary<string, Root> _stations = new(); //key: stationCommonName, value: station
+        private Dictionary<string, List<Root>> _lines = new(); //key: lineId, value: station
 
 
         public RoutingCalculations(TflClient givenclient, Dictionary<string, Root> allStations, Dictionary<string, List<Root>> allLines)
@@ -52,9 +50,9 @@ namespace Tube_Traveller
                 bool checkSameLine = false; //Checks if sameLine has ever occured to be true 
                 foreach (Line givenStationLine in givenStation.GetLines())
                 {
-                    if (givenStation.Id != null)
+                    if (givenStation.GetId != null)
                     {
-                        if (_lines.ContainsKey(givenStationLine.GetId()) && preCheckedLineIds.Contains(givenStation.Id) == false) //Checking for unwanted and pre-checked lines, (for example national rail lines)
+                        if (_lines.ContainsKey(givenStationLine.GetId()) && preCheckedLineIds.Contains(givenStation.GetId()) == false) //Checking for unwanted and pre-checked lines, (for example national rail lines)
                         {
                             foreach (Root currentStation in _lines[givenStationLine.GetId()]) //All stations on the givenStation line
                             {
@@ -62,7 +60,7 @@ namespace Tube_Traveller
                                 if (sameLine == true)
                                 {
                                     checkSameLine = true;
-                                    newStation = FindSwitchStation(givenStation, destinationStation, newStation, currentStation, iteration);
+                                    newStation = FindSwitchStation(givenStation, destinationStation, newStation, currentStation);
                                     AddStationToRoute(newStation, destinationStation, stations, iteration);
                                 }
                             }
@@ -71,7 +69,7 @@ namespace Tube_Traveller
                     }
                 }
 
-                if (checkSameLine == false ) //Only used for when there's more than 1 change of lines
+                if (checkSameLine == false) //Only used for when there's more than 1 change of lines
                 {
                     stations = RouteByLines(newStation, destinationStation, stations, sameLine, preCheckedLineIds, iteration);
                 }
@@ -86,13 +84,13 @@ namespace Tube_Traveller
         /// <param name="chosenStation">The station that the user would match to</param>
         /// <param name="destinationStation">The station that the user would compare with</param>
         /// <returns>true if any line is the same, else false</returns>
-        private static bool FindMatchingLine(Root chosenStation, Root destinationStation)
+        private bool FindMatchingLine(Root chosenStation, Root destinationStation)
         {
-            HashSet<string> chosenLines = chosenStation?.Lines.Select(x => x.GetId()).ToHashSet();
-            HashSet<string> destinationLines = destinationStation?.Lines.Select(x => x.GetId()).ToHashSet();
+            HashSet<string>? chosenLines = chosenStation.GetLines().Select(x => x.GetId()).ToHashSet();
+            HashSet<string>? destinationLines = destinationStation.GetLines().Select(x => x.GetId()).ToHashSet();
 
-            HashSet<string> matchingLines = chosenLines.Intersect(destinationLines).ToHashSet();
-            foreach (string line in matchingLines)
+            HashSet<string> matchingChosenLines = chosenLines.Intersect(destinationLines).ToHashSet();
+            foreach (string line in matchingChosenLines)
             {
                 if (_lines.ContainsKey(line))
                 {
@@ -104,7 +102,7 @@ namespace Tube_Traveller
         }
 
         
-        private static void AddStationToRoute(Root newStation, Root destinationStation, List<Root> stations, int iteration)
+        private void AddStationToRoute(Root newStation, Root destinationStation, List<Root> stations, int iteration)
         {
             if (stations.Count == 2) //First iteration
             {
@@ -128,10 +126,10 @@ namespace Tube_Traveller
         /// <param name="newStation">The current chosen "best" station to switch at</param>
         /// <param name="competingStation">The station in question of whether it's a better station to switch at</param>
         /// <returns>The Station you switch at being <paramref name="newStation"/></returns>
-        private Root FindSwitchStation(Root givenStation, Root destinationStation, Root newStation, Root competingStation, int iteration)
+        private Root FindSwitchStation(Root givenStation, Root destinationStation, Root newStation, Root competingStation)
         {
-            double? currentStationDistance = CalculateDistance(competingStation, givenStation);
-            double? newStationDistance = CalculateDistance(newStation, givenStation);
+            double? currentStationDistance = CalculateDistance(competingStation, destinationStation);
+            double? newStationDistance = CalculateDistance(newStation, destinationStation);
 
             if (givenStation.GetId() != competingStation.GetId() ) //Looking for new line from the current station
             {
@@ -157,11 +155,11 @@ namespace Tube_Traveller
         private int FindAmountOfValidLines(Root chosenStation)
         {
             int differentTubeLines = -1;
-            if (chosenStation.Lines != null)
+            if (chosenStation.GetLines() != null)
             {
-                for (int i = 0; i < chosenStation.Lines.Count; i++)
+                for (int i = 0; i < chosenStation.GetLines().Count; i++)
                 {
-                    if (_lines.ContainsKey(chosenStation?.Lines[i].Id))
+                    if (_lines.ContainsKey(chosenStation.GetLines()[i].GetId()))
                     {
                         differentTubeLines++;
                     }
@@ -177,11 +175,11 @@ namespace Tube_Traveller
         /// <param name="destinationStation">The station that the user ends at</param>
         /// <param name="chosenStation">The station that the user starts at</param>
         /// <returns>Distance if no null values are present, else null</returns>
-        private static double? CalculateDistance(Root chosenStation, Root destinationStation)
+        private double? CalculateDistance(Root chosenStation, Root destinationStation)
         {
             if (chosenStation.GetCommonName() != null && destinationStation.GetCommonName() != null)
             {
-                return Math.Sqrt(Math.Pow(destinationStation.Lon - chosenStation.Lon, 2) + Math.Pow(destinationStation.Lat - chosenStation.Lat, 2));
+                return Math.Sqrt(Math.Pow(destinationStation.GetLon() - chosenStation.GetLon(), 2) + Math.Pow(destinationStation.GetLat() - chosenStation.GetLat(), 2));
             }
 
             return null;
@@ -203,16 +201,23 @@ namespace Tube_Traveller
 
         private async Task<Dictionary<string, List<OrderedLineRoute>>> FindAllValidLines()
         {
-            var lines = await _client.GetAllLinesByModeAsync("tube");
-            Dictionary<string, List<OrderedLineRoute>> orderedStations = new();
-
-            foreach (Root line in lines)
+            try
             {
-                var lineRoute = await _client.GetLineRouteByLineAsync(line.GetId(), "inbound");
-                orderedStations.Add(line.GetId(), lineRoute.GetOrderedLineRoutes());
+                var lines = await _client.GetAllLinesByModeAsync("tube");
+                Dictionary<string, List<OrderedLineRoute>> orderedStations = new();
 
+                foreach (Root line in lines)
+                {
+                    var lineRoute = await _client.GetLineRouteByLineAsync(line.GetId(), "inbound");
+                    orderedStations.Add(line.GetId(), lineRoute.GetOrderedLineRoutes());
+
+                }
+                return orderedStations;
             }
-            return orderedStations;
+            catch (Exception) //Any other error that I wouldn't know
+            {
+                return new Dictionary<string, List<OrderedLineRoute>>();
+            }
         }
 
         private List<Root> RunDjisktra(List<string> allStations)

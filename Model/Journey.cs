@@ -1,12 +1,16 @@
-﻿namespace Tube_Traveller.Model
+﻿using System.Collections.Generic;
+
+namespace Tube_Traveller.Model
 {
     internal class Journey
     {
-        //public string? Type { get; set; }
-        //public DateTime StartDateTime { get; set; }
-        public int Duration { get; set; }
-        //public DateTime ArrivalDateTime { get; set; }
-        //public List<Leg> Legs { get; set; }
-        public Fare? Fare { get; set; }
+        public int Duration { internal get; set; }
+        public int GetDuration() => Duration;
+
+        public List<Leg>? Legs { internal get; set; }
+        public List<Leg>? GetLegs() => Legs;
+
+        public Fare? Fare { internal get; set; }
+        public Fare? GetFare() => Fare;
     }
 }

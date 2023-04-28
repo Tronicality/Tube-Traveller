@@ -1,19 +1,6 @@
-﻿using Microsoft.Win32;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Permissions;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Markup;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace Tube_Traveller.Accounts
 {
@@ -22,7 +9,7 @@ namespace Tube_Traveller.Accounts
     /// </summary>
     public partial class SignUpWindow : Window
     {
-        private Account userAccount;
+        private Account? userAccount;
         public Account? GetAccount() => userAccount;
 
         private List<string> stations = new();
@@ -42,15 +29,34 @@ namespace Tube_Traveller.Accounts
         {
             Dictionary<string, TextBox> requiredFields = new(){
                 {"Username", UsernameBox},
-                {"First Name", FirstNameBox},
                 {"Password", PasswordBox}
             };
 
+            if (EmailBox.Text != Text.Get("Email"))
+            {
+                if (Account.ConfirmKey(EmailBox.Text))
+                {
+                    SaveAccount(requiredFields);
+                }
+                else
+                {
+                    FailedRegistryLabel.Content = "Invalid Email";
+                }
+            }
+            else
+            {
+                EmailBox.Text = "";
+                SaveAccount(requiredFields);
+            }
+        }
+
+        private void SaveAccount(Dictionary<string, TextBox> requiredFields)
+        {
             if (CheckRequiredInfo(requiredFields) == true)
             {
-                userAccount = new Account(UsernameBox.Text, FirstNameBox.Text, LastNameBox.Text, PasswordBox.Text, EmailBox.Text, "Regular", HomeStationComboBox.Text);
+                userAccount = new Account(UsernameBox.Text, PasswordBox.Text, EmailBox.Text, "Regular", HomeStationComboBox.Text);
 
-                if (userAccount.GetActiveAccount() == false)
+                if (userAccount.GetHasUniqueUsername() == false)
                 {
                     FailedRegistryLabel.Content = "Username Taken";
                 }
@@ -127,7 +133,6 @@ namespace Tube_Traveller.Accounts
                 PasswordBox.Text = string.Empty;
             }
         }
-
         private void PasswordBox_LostFocus(object sender, RoutedEventArgs e)
         {
             if (PasswordBox.Text == string.Empty)
@@ -135,34 +140,7 @@ namespace Tube_Traveller.Accounts
                 PasswordBox.Text = Text.Get("Password");
             }
         }
-        private void FirstNameBox_GotFocus(object sender, RoutedEventArgs e)
-        {
-            if (FirstNameBox.Text == Text.Get("First Name"))
-            {
-                FirstNameBox.Text = string.Empty;
-            }
-        }
-        private void FirstNameBox_LostFocus(object sender, RoutedEventArgs e)
-        {
-            if (FirstNameBox.Text == string.Empty)
-            {
-                FirstNameBox.Text = Text.Get("First Name");
-            }
-        }
-        private void LastNameBox_GotFocus(object sender, RoutedEventArgs e)
-        {
-            if (LastNameBox.Text == Text.Get("Last Name"))
-            {
-                LastNameBox.Text = string.Empty;
-            }
-        }
-        private void LastNameBox_LostFocus(object sender, RoutedEventArgs e)
-        {
-            if (LastNameBox.Text == string.Empty)
-            {
-                LastNameBox.Text = Text.Get("Last Name");
-            }
-        }
+
         private void EmailBox_GotFocus(object sender, RoutedEventArgs e)
         {
             if (EmailBox.Text == Text.Get("Email"))

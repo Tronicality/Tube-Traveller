@@ -68,7 +68,7 @@ namespace Tube_Traveller.Database
             return null;
         }
 
-        protected static string? GetUserId(string username)
+        public static string? GetUserId(string username)
         {
             using (var connection = new SqliteConnection(connectionStringBuilder.ConnectionString))
             {
@@ -115,7 +115,6 @@ namespace Tube_Traveller.Database
             return null;
         }
 
-
         public void AddAccount(Account userAccount)
         {
             using (var connection = new SqliteConnection(connectionStringBuilder.ConnectionString))
@@ -125,8 +124,8 @@ namespace Tube_Traveller.Database
                 {
                     try
                     {
-                        AddUserInfo(connection ,userAccount.GetUsername(), userAccount.GetFirstName(), userAccount.GetLastName(), userAccount.GetPassword(), userAccount.GetEmail());
-                        AddExtraInfo(connection ,userAccount.GetRouteMethod(), userAccount.GetHomeStation());
+                        AddUserInfo(connection ,userAccount.GetUsername()!, userAccount.GetPassword()!, userAccount.GetEmail());
+                        AddExtraInfo(connection ,userAccount.GetRouteMethod()!, userAccount.GetHomeStation());
                         transaction.Commit();
                     }
                     catch (Exception ex)
@@ -138,13 +137,11 @@ namespace Tube_Traveller.Database
             }
         }
 
-        private void AddUserInfo(SqliteConnection connection, string username, string firstName, string? lastName, string password, string? email)
+        private void AddUserInfo(SqliteConnection connection, string username, string password, string? email)
         {
             var insertCmd = connection.CreateCommand();
-            insertCmd.CommandText = "INSERT INTO User(Username, Firstname, Lastname, Password, Email) VALUES(@username, @firstName, @lastName, @password, @email)";
+            insertCmd.CommandText = "INSERT INTO User(Username, Password, Email) VALUES(@username, @password, @email)";
             insertCmd.Parameters.AddWithValue("@username", username); 
-            insertCmd.Parameters.AddWithValue("@firstName", firstName);
-            insertCmd.Parameters.AddWithValue("@lastName", lastName);
             insertCmd.Parameters.AddWithValue("@password", password);
             insertCmd.Parameters.AddWithValue("@email", email);
 
@@ -159,6 +156,92 @@ namespace Tube_Traveller.Database
             insertCmd.CommandText = $"INSERT INTO Extra(RouteMethod, HomeStation) VALUES(@routeMethod, @homeStation)";
             insertCmd.Parameters.AddWithValue("@routeMethod", routeMethod);
             insertCmd.Parameters.AddWithValue("@homeStation", homeStation);
+
+            insertCmd.ExecuteNonQuery();
+        }
+
+        protected void UpdateAccount(Account userAccount)
+        {
+            using (var connection = new SqliteConnection(connectionStringBuilder.ConnectionString))
+            {
+                connection.Open();
+                using (var transaction = connection.BeginTransaction()) //Ensures that all data would be inserted at the same time
+                {
+                    try
+                    {
+                        UpdateUserInfo(connection, userAccount.GetPassword()!, userAccount.GetEmail());
+                        UpdateExtraInfo(connection, userAccount.GetRouteMethod()!, userAccount.GetHomeStation());
+                        transaction.Commit();
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        Debug.WriteLine(ex.Message);
+                    }
+                }
+            }
+        }
+
+        private void UpdateUserInfo(SqliteConnection connection, string password, string? email)
+        {
+            var insertCmd = connection.CreateCommand();
+            insertCmd.CommandText = "UPDATE User SET Password = @password, Email = @email";
+            insertCmd.Parameters.AddWithValue("@password", password);
+            insertCmd.Parameters.AddWithValue("@email", email);
+
+            insertCmd.ExecuteNonQuery();
+            //Does command and doesn't return any results
+        }
+
+        private void UpdateExtraInfo(SqliteConnection connection, string routeMethod, string? homeStation)
+        {
+            var insertCmd = connection.CreateCommand();
+
+            insertCmd.CommandText = $"UPDATE Extra SET RouteMethod = @routeMethod, HomeStation = @homeStation";
+            insertCmd.Parameters.AddWithValue("@routeMethod", routeMethod);
+            insertCmd.Parameters.AddWithValue("@homeStation", homeStation);
+
+            insertCmd.ExecuteNonQuery();
+        }
+
+        public static void DeleteAccount(string id)
+        {
+            using (var connection = new SqliteConnection(connectionStringBuilder.ConnectionString))
+            {
+                connection.Open();
+                using (var transaction = connection.BeginTransaction()) //Ensures that all data would be inserted at the same time
+                {
+                    try
+                    {
+                        DeleteUserInfo(connection, id);
+                        DeleteExtraInfo(connection, id);
+                        transaction.Commit();
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        Debug.WriteLine(ex.Message);
+                    }
+                }
+            }
+        }
+
+        private static void DeleteUserInfo(SqliteConnection connection, string id)
+        {
+            var insertCmd = connection.CreateCommand();
+            insertCmd.CommandText = "DELETE FROM User WHERE Id = @Id";
+            insertCmd.Parameters.AddWithValue("@Id", id);
+
+            insertCmd.ExecuteNonQuery();
+            //Does command and doesn't return any results
+        }
+
+        private static void DeleteExtraInfo(SqliteConnection connection, string id)
+        {
+            var insertCmd = connection.CreateCommand();
+
+            insertCmd.CommandText = $"DELETE FROM Extra WHERE UserId = @Id";
+            insertCmd.Parameters.AddWithValue("@Id", id);
 
             insertCmd.ExecuteNonQuery();
         }

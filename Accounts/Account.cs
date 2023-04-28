@@ -1,30 +1,30 @@
-﻿using System.Diagnostics;
-using System.Text.RegularExpressions;
-using System.Windows;
+﻿using System.Text.RegularExpressions;
 
 namespace Tube_Traveller.Accounts
 {
     public class Account : Database.Database
     {
-        private string Id;
-        public string GetId() => Id;
-        private string Username;
-        public string GetUsername() => Username;
-        private string FirstName;
-        public string GetFirstName() => FirstName;
-        private string? LastName;
-        public string? GetLastName() => LastName;
-        private string Password;
-        public string GetPassword() => Password;
+        private string? Id;
+        public string? GetId() => Id;
+        public void SetId(string value) {Id = value;}
+
+        private string? Username;
+        public string? GetUsername() => Username;
+
+        private string? Password;
+        public string? GetPassword() => Password;
+
         private string? Email;
         public string? GetEmail() => Email;
-        private string RouteMethod;
-        public string GetRouteMethod() => RouteMethod;
+
+        private string? RouteMethod;
+        public string? GetRouteMethod() => RouteMethod;
+
         private string? HomeStation;
         public string? GetHomeStation() => HomeStation;
 
-        private bool activeAccount;
-        public bool GetActiveAccount() => activeAccount;
+        private bool hasUniqueUsername; 
+        public bool GetHasUniqueUsername() => hasUniqueUsername;
 
         public Account()
         {
@@ -34,41 +34,34 @@ namespace Tube_Traveller.Accounts
         /// <summary>
         /// Creates a new account which even adds it to the database
         /// </summary>
-        public Account(string username, string firstName, string? lastName, string password, string? email, string routeMethod, string? homeStation)
+        public Account(string username, string password, string? email, string routeMethod, string? homeStation)
+        {
+            SetAccountValues(username, password, email, routeMethod, homeStation);
+            StoreAccount(); //Adds account to database
+        }
+
+        private void SetAccountValues(string username, string password, string? email, string routeMethod, string? homeStation)
         {
             this.Username = username;
-            this.FirstName = firstName;
-            this.LastName = lastName;
             this.Password = password;
             this.Email = email;
             this.RouteMethod = routeMethod;
             this.HomeStation = homeStation;
-
-            StoreAccount(); //Adds account to database
         }
 
         private void StoreAccount()
         {
             //Check if account username already exists
-            string[]? userInfo = GetUserInfoByUsername(Username);
-            try
+            string[]? userInfo = GetUserInfoByUsername(Username!);
+            if (userInfo?[1] == Username)
             {
-                if (userInfo[1] == Username)
-                {
-                    activeAccount = false; //Username Taken
-                }
-                else
-                {
-                    activeAccount = true;
-                    AddAccount(this);
-                    GetUserId(Username);
-                }
+                hasUniqueUsername = false; //Username Taken
             }
-            catch (System.NullReferenceException)
+            else
             {
-                activeAccount = true;
+                hasUniqueUsername = true;
                 AddAccount(this);
-                GetUserId(Username);
+                GetUserId(Username!);
             }
         }
 
@@ -103,7 +96,7 @@ namespace Tube_Traveller.Accounts
         private static Account? LookForAccount(string givenKey)
         {
             string[]? Information; //Used for getting both User and Extra information
-            if (ConfirmKey(givenKey)) //Finds out whether key is username or email
+            if (ConfirmKey(givenKey) == false) //Finds out whether key is username o+r email
             {
                 Information = GetUserInfoByUsername(givenKey);
             }
@@ -118,14 +111,12 @@ namespace Tube_Traveller.Accounts
 
                 userAccount.Id = Information[0];
                 userAccount.Username = Information[1];
-                userAccount.FirstName = Information[2];
-                userAccount.LastName = Information[3];
-                userAccount.Password = Information[4];
-                userAccount.Email = Information[5];
+                userAccount.Password = Information[2];
+                userAccount.Email = Information[3];
 
-                Information = GetExtraInfo(userAccount.GetId());
+                Information = GetExtraInfo(userAccount.GetId()!);
 
-                userAccount.RouteMethod = Information[1];
+                userAccount.RouteMethod = Information![1];
                 userAccount.HomeStation = Information[2];
 
                 return userAccount;
@@ -139,15 +130,17 @@ namespace Tube_Traveller.Accounts
         /// </summary>
         /// <param name="givenKey">Said username or eamil</param>
         /// <returns>true for Email, false for Username</returns>
-        private static bool ConfirmKey(string givenKey)
+        public static bool ConfirmKey(string givenKey)
         {
-            Regex emailChecker = new(Text.Get("Email Pattern"));
+            Regex emailChecker = new(Text.GetEmailPattern());
 
-            if (emailChecker.IsMatch(givenKey.ToLower()))
-            {
-                return false;
-            }
-            return true;
+            return emailChecker.IsMatch(givenKey);
+        }
+
+        public void AlterAccount(string username, string password, string? email, string routeMethod, string? homeStation)
+        {
+            SetAccountValues(username, password, email, routeMethod, homeStation);
+            UpdateAccount(this);
         }
     }
 }

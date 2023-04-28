@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Tube_Traveller
 {
@@ -18,17 +14,22 @@ namespace Tube_Traveller
                     return "Enter Username";
                 case "Password":
                     return "Enter Password";
-                case "First Name":
-                    return "Enter First Name";
-                case "Last Name":
-                    return "Enter Last Name";
                 case "Email":
                     return "Enter Email";
-                case "Email Pattern":
-                    return @"^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$";
                 default:
                     throw new ArgumentException("Invalid field name");
             }
         }
+
+        private const string emailPattern = @"^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$";
+        public static string GetEmailPattern() => emailPattern;
+
+
+        private const string RouteMethod_R = "Regular";
+        public static string GetRouteMethod_R() => RouteMethod_R;
+
+
+        private const string RouteMethod_A = "Algorithmic";
+        public static string GetRouteMethod_A() => RouteMethod_A;
     }
 }

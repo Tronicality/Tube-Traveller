@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using Tube_Traveller.Accounts;
 
 namespace Tube_Traveller
@@ -14,15 +12,27 @@ namespace Tube_Traveller
     {
         private Account? userAccount;
         public Account? GetAccount() => userAccount;
-        public void SetAccount(Account? newAccount) { userAccount = newAccount; }
 
-        private List<string> stations;
-        public List<string> GetStations() => stations;
+        private List<string>? stations;
         public void SetStations(List<string> newStations) { stations = newStations; }
 
         public LoginWindow()
         {
             InitializeComponent();
+        }
+
+        private void SignUpBtn_Click(object sender, RoutedEventArgs e)
+        {
+            SignUpWindow signUpWindow = new();
+            signUpWindow.SetStations(stations!);
+
+            bool? result = signUpWindow.ShowDialog();
+            if (result == true) //Left through Register Button
+            {
+                userAccount = signUpWindow.GetAccount();
+                userAccount?.SetId(Database.Database.GetUserId(userAccount.GetUsername()!)!);
+                DialogResult = true; //Tells Main window that a new account has been made
+            }
         }
 
         private void LoginBtn_Click(object sender, RoutedEventArgs e)
@@ -33,13 +43,19 @@ namespace Tube_Traveller
             };
             if (CheckRequiredInfo(requiredFields))
             {
-                userAccount = Account.GetAccountFromDatabase(UsernameBox.Text, PasswordBox.Text);
-
-                if (userAccount != null)
+                try
                 {
-                    DialogResult = true; //Tells main window account is found
+                    userAccount = Account.GetAccountFromDatabase(UsernameBox.Text, PasswordBox.Text);
+                    if (userAccount != null)
+                    {
+                        DialogResult = true; //Tells main window account is found
+                    }
+                    FailedLoginLabel.Content = "Account is not found";
                 }
-                FailedLoginLabel.Content = "Account is not found";
+                catch (System.NullReferenceException)
+                {
+                    FailedLoginLabel.Content = "Account is not found";
+                }
             }
         }
 
@@ -85,20 +101,7 @@ namespace Tube_Traveller
                 FailedLoginLabel.Content += $":{field}:";
             }
         }
-
-        private void SignUpBtn_Click(object sender, RoutedEventArgs e)
-        {
-            SignUpWindow signUpWindow = new();
-            signUpWindow.SetStations(stations);
-
-            bool? result = signUpWindow.ShowDialog();
-            if (result == true) //Left through Register Button
-            {
-                userAccount = signUpWindow.GetAccount();
-                DialogResult = true; //Tells Main window that a new account has been made
-            }
-        }
-
+        
         private void UsernameBox_GotFocus(object sender, RoutedEventArgs e)
         {
             if (UsernameBox.Text == Text.Get("Login"))

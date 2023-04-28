@@ -5,20 +5,19 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Tube_Traveller.Accounts"
         mc:Ignorable="d"
-        Title="SignUpWindow" Height="490" Width="650" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
+        Title="SignUpWindow" Height="420" Width="650" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
     <Grid>
         <TextBox x:Name="UsernameBox" HorizontalAlignment="Left" Height="30" Margin="20,141,0,0" TextWrapping="Wrap" Text="Enter Username" VerticalAlignment="Top" Width="250" LostFocus="UsernameBox_LostFocus" GotFocus="UsernameBox_GotFocus"/>
         <TextBox x:Name="PasswordBox" HorizontalAlignment="Left" Height="30" Margin="20,180,0,0" TextWrapping="Wrap" Text="Enter Password" VerticalAlignment="Top" Width="250" LostFocus="PasswordBox_LostFocus" GotFocus="PasswordBox_GotFocus"/>
-        <TextBox x:Name="FirstNameBox" HorizontalAlignment="Left" Height="30" Margin="20,240,0,0" TextWrapping="Wrap" Text="Enter First Name" VerticalAlignment="Top" Width="250" LostFocus="FirstNameBox_LostFocus" GotFocus="FirstNameBox_GotFocus"/>
-        <TextBox x:Name="LastNameBox" HorizontalAlignment="Left" Height="30" Margin="20,280,0,0" TextWrapping="Wrap" Text="Enter Last Name" VerticalAlignment="Top" Width="250" LostFocus="LastNameBox_LostFocus" GotFocus="LastNameBox_GotFocus"/>
-        <TextBox x:Name="EmailBox" HorizontalAlignment="Left" Height="30" Margin="20,325,0,0" TextWrapping="Wrap" Text="Enter Email" VerticalAlignment="Top" Width="250" LostFocus="EmailBox_LostFocus" GotFocus="EmailBox_GotFocus"/>
-        <Button x:Name="Register" Content="Register" HorizontalAlignment="Center" Height="40" Margin="0,380,0,0" VerticalAlignment="Top" Width="130" Click="Register_Click"/>
+        <TextBox x:Name="EmailBox" HorizontalAlignment="Left" Height="30" Margin="20,237,0,0" TextWrapping="Wrap" Text="Enter Email" VerticalAlignment="Top" Width="250" LostFocus="EmailBox_LostFocus" GotFocus="EmailBox_GotFocus"/>
+        <Button x:Name="Register" Content="Register" HorizontalAlignment="Center" Height="40" Margin="0,304,0,0" VerticalAlignment="Top" Width="130" Click="Register_Click"/>
         <Label Content="Sign Up" HorizontalAlignment="Center" Height="87" Margin="0,33,0,0" VerticalAlignment="Top" Width="352" FontSize="48" HorizontalContentAlignment="Center"/>
         <Button x:Name="PreviousBtn" Content="Back" HorizontalAlignment="Left" Height="30" Margin="10,10,0,0" VerticalAlignment="Top" Width="80" Click="PreviousBtn_Click"/>
-        <ComboBox x:Name="HomeStationComboBox" HorizontalAlignment="Left" Height="35" Margin="325,223,0,0" VerticalAlignment="Top" Width="290"/>
-        <Label x:Name="FailedRegistryLabel" HorizontalAlignment="Center" Height="34" Margin="0,425,0,0" VerticalAlignment="Top" Width="580" Foreground="Red" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-        <Label Content="Optional" HorizontalAlignment="Left" Height="20" Margin="246,315,0,0" VerticalAlignment="Top" Width="49" Background="White" FontSize="8"/>
-        <Label Content="Optional" HorizontalAlignment="Left" Height="20" Margin="246,275,0,0" VerticalAlignment="Top" Width="55" Background="White" FontSize="8"/>
-        <Label Content="Home Station" HorizontalAlignment="Left" Height="28" Margin="428,195,0,0" VerticalAlignment="Top" Width="84" Background="White"/>
+        <ComboBox x:Name="HomeStationComboBox" HorizontalAlignment="Left" Height="35" Margin="325,200,0,0" VerticalAlignment="Top" Width="290"/>
+        <Label x:Name="FailedRegistryLabel" HorizontalAlignment="Center" Height="34" Margin="0,349,0,0" VerticalAlignment="Top" Width="580" Foreground="Red" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+        <Label Content="Optional" HorizontalAlignment="Left" Height="23" Margin="240,229,0,0" VerticalAlignment="Top" Width="49" Background="White" FontSize="10" RenderTransformOrigin="0.49,-2.548"/>
+        <Label Content="Optional" HorizontalAlignment="Left" Height="23" Margin="570,184,0,0" VerticalAlignment="Top" Width="51" Background="White" FontSize="10" RenderTransformOrigin="-0.455,-1.274"/>
+        <Label Content="Home Station" HorizontalAlignment="Left" Height="28" Margin="428,167,0,0" VerticalAlignment="Top" Width="84" Background="White" RenderTransformOrigin="0.5,-0.391"/>
+        <Label Content="You can't change this" HorizontalAlignment="Left" Height="24" Margin="195,122,0,0" VerticalAlignment="Top" Width="105" Background="White" FontSize="10" RenderTransformOrigin="0.49,-2.548"/>
     </Grid>
 </Window>

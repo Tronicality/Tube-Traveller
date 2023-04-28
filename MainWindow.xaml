@@ -5,23 +5,19 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Tube_Traveller"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800" ResizeMode="NoResize">
+        Title="MainWindow" Height="450" Width="820" ResizeMode="NoResize">
     <Grid x:Name="Lines">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="43*"/>
-            <ColumnDefinition Width="37*"/>
-        </Grid.ColumnDefinitions>
-        <Button x:Name="BtnMap" Content="Map" HorizontalAlignment="Left" Height="30" Margin="58,79,0,0" VerticalAlignment="Top" Width="108" Grid.Column="1" Click="BtnMap_Click"/>
-        <Label x:Name="Requirements" Content="Powered by TfL Open Data'. Contains OS data @ Crown copyright and database rights 2016' and Geomni UK Map data @ and database rights [2019]" HorizontalAlignment="Left" Height="30" VerticalAlignment="Top" Width="800" Grid.ColumnSpan="2"/>
-        <ListBox x:Name="ResultListBox" HorizontalAlignment="Left" Height="160" Margin="294,264,0,0" VerticalAlignment="Top" Width="496" Grid.ColumnSpan="2"/>
-        <TextBox x:Name="MainBox" HorizontalAlignment="Left" Height="102" Margin="76,157,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="656" Grid.ColumnSpan="2" Focusable="False"/>
-        <ComboBox x:Name="FromComboBox" HorizontalAlignment="Left" Height="29" Margin="76,64,0,0" VerticalAlignment="Top" Width="173" Text="EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE" AllowDrop="True" IsReadOnly="True" SelectionChanged="FromComboBox_SelectionChanged"/>
-        <ComboBox x:Name="ToComboBox" HorizontalAlignment="Left" Height="30" Margin="76,99,0,0" VerticalAlignment="Top" Width="173" IsReadOnly="True" SelectionChanged="ToComboBox_SelectionChanged"/>
-        <Button x:Name="BtnRoute" Content="Route" HorizontalAlignment="Left" Height="50" Margin="294,69,0,0" VerticalAlignment="Top" Width="116" Click="BtnRoute_Click"/>
-        <Label Content="From:" HorizontalAlignment="Left" Height="24" Margin="22,65,0,0" VerticalAlignment="Top" Width="54"/>
-        <Label Content="To:" HorizontalAlignment="Left" Height="30" Margin="37,99,0,0" VerticalAlignment="Top" Width="39"/>
-        <CheckBox x:Name="FastRouting" Content="Faster but less reliable routing" HorizontalAlignment="Left" Height="21" Margin="294,43,0,0" VerticalAlignment="Top" Width="187" IsChecked="True" Grid.ColumnSpan="2" Unchecked="FastRouting_Unchecked"/>
-        <TextBox x:Name="RouteInfo" HorizontalAlignment="Left" Height="160" Margin="10,264,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="270" Focusable="False"/>
-        <Button x:Name="AccountBtn" Content="Sign In" Margin="185,62,35,308" Grid.Column="1" Click="AccountBtn_Click" FontSize="24"/>
+        <Button x:Name="BtnMap" Content="Map" HorizontalAlignment="Left" Height="30" Margin="502,86,0,0" VerticalAlignment="Top" Width="108" Click="BtnMap_Click"/>
+        <Label x:Name="Requirements" Content="Powered by TfL Open Data'. Contains OS data @ Crown copyright and database rights 2016' and Geomni UK Map data @ and database rights [2019]" HorizontalAlignment="Center" Height="30" VerticalAlignment="Top" Width="800"/>
+        <ListBox x:Name="ResultListBox" HorizontalAlignment="Left" Height="100" Margin="300,284,0,0" VerticalAlignment="Top" Width="496"/>
+        <TextBox x:Name="MainBox" HorizontalAlignment="Left" Height="102" Margin="82,177,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="656" Focusable="False"/>
+        <ComboBox x:Name="FromComboBox" HorizontalAlignment="Left" Height="29" Margin="64,66,0,0" VerticalAlignment="Top" Width="173" AllowDrop="True" Text="Choose Station"/>
+        <ComboBox x:Name="ToComboBox" HorizontalAlignment="Left" Height="30" Margin="64,101,0,0" VerticalAlignment="Top" Width="173" IsReadOnly="True"/>
+        <Button x:Name="BtnRoute" Content="Route" HorizontalAlignment="Left" Height="50" Margin="282,71,0,0" VerticalAlignment="Top" Width="116" Click="BtnRoute_Click"/>
+        <Label Content="From:" HorizontalAlignment="Left" Height="24" Margin="10,67,0,0" VerticalAlignment="Top" Width="54"/>
+        <Label Content="To:" HorizontalAlignment="Left" Height="30" Margin="25,101,0,0" VerticalAlignment="Top" Width="39"/>
+        <TextBox x:Name="RouteInfo" HorizontalAlignment="Left" Height="100" Margin="16,284,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="270" Focusable="False"/>
+        <Button x:Name="AccountBtn" Content="Sign In" Margin="615,104,0,0" Click="AccountBtn_Click" FontSize="24" HorizontalAlignment="Left" Width="160" Height="45" VerticalAlignment="Top"/>
+        <Button x:Name="ReloadStationsBtn" Content="Reload Stations" HorizontalAlignment="Left" Height="35" Margin="615,64,0,0" VerticalAlignment="Top" Width="160" Click="ReloadStationsBtn_Click"/>
     </Grid>
 </Window>
