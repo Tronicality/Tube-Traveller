@@ -20,6 +20,5 @@
         <Label Content="Change Password" HorizontalAlignment="Left" Height="28" Margin="155,82,0,0" VerticalAlignment="Top" Width="115" Background="White" RenderTransformOrigin="0.5,-0.391"/>
         <Label Content="Change Email" HorizontalAlignment="Left" Height="28" Margin="170,159,0,0" VerticalAlignment="Top" Width="100" Background="White" RenderTransformOrigin="0.5,-0.391"/>
         <Label x:Name="FailedLabel" HorizontalAlignment="Left" Height="34" Margin="20,260,0,0" VerticalAlignment="Top" Width="567" Foreground="Red" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-
     </Grid>
 </Window>

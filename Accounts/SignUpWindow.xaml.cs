@@ -9,15 +9,16 @@ namespace Tube_Traveller.Accounts
     /// </summary>
     public partial class SignUpWindow : Window
     {
-        private Account? userAccount;
-        public Account? GetAccount() => userAccount;
+        private Account? _userAccount;
+        /// <summary></summary>
+        public Account? GetAccount() => _userAccount;
 
-        private List<string> stations = new();
+        private List<string> _stations = new();
         public void SetStations(List<string> newStations) 
         { 
-            stations = newStations;
-            stations.Sort();
-            HomeStationComboBox.ItemsSource = stations;
+            _stations = newStations;
+            _stations.Sort();
+            HomeStationComboBox.ItemsSource = _stations;
         }
 
         public SignUpWindow()
@@ -54,9 +55,9 @@ namespace Tube_Traveller.Accounts
         {
             if (CheckRequiredInfo(requiredFields) == true)
             {
-                userAccount = new Account(UsernameBox.Text, PasswordBox.Text, EmailBox.Text, "Regular", HomeStationComboBox.Text);
+                _userAccount = new Account(UsernameBox.Text, PasswordBox.Text, EmailBox.Text, "Regular", HomeStationComboBox.Text);
 
-                if (userAccount.GetHasUniqueUsername() == false)
+                if (_userAccount.GetHasUniqueUsername() == false)
                 {
                     FailedRegistryLabel.Content = "Username Taken";
                 }

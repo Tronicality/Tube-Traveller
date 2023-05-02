@@ -4,18 +4,18 @@ using System.Linq;
 using System.Windows;
 using Tube_Traveller.Model;
 using Tube_Traveller.Accounts;
+using System.Threading.Tasks;
 
 namespace Tube_Traveller
 {
     public partial class MainWindow : Window
     {
-        //todo Options page where you can change account settings
-
-        private Account? userAccount = new();
+        //todo Save stations to a text file
+        private Account? _userAccount = new();
         private TflClient _client = new();
         private Dictionary<string, Root> _stations = new(); //key: stationCommonName, value: station
         private Dictionary<string, List<Root>> _lines = new(); //key: lineId, value: station
-        private bool _HasStationsLoaded = false;
+        private bool _hasStationsLoaded = false;
 
         public MainWindow()
         {
@@ -28,23 +28,7 @@ namespace Tube_Traveller
             //Getting stations from api             
             try
             {
-                List<string> tempStations = new();
-                List<Root> lines = await _client.GetAllLinesByModeAsync("tube");
-                foreach (Root line in lines)
-                {
-                    List<Root> stations = await _client.GetAllStationsByLine(line.GetId());
-                    foreach (Root station in stations)
-                    {
-                        if (!_stations.ContainsKey(station.GetCommonName())) //No repeating stations appear
-                        {
-                            _stations.Add(station.GetCommonName(), station);
-                            tempStations.Add(station.GetCommonName());
-                        }
-                    }
-
-                    _lines.Add(line.GetId(), stations);
-                }
-
+                List<string> tempStations = await GetAllStations();
                 tempStations.Sort();
 
                 for (int i = 0; i < tempStations.Count; i++)
@@ -53,12 +37,12 @@ namespace Tube_Traveller
                     ToComboBox.Items.Add(tempStations[i]);
                 }
 
-                if (userAccount != null)
+                if (_userAccount != null)
                 {
                     AddHomeStation();
                 }
 
-                _HasStationsLoaded = true;
+                _hasStationsLoaded = true;
                 MainBox.Text = "Loaded Stations";
             }
             catch (System.Net.Http.HttpRequestException) //If user isn't connected to the internet
@@ -68,12 +52,33 @@ namespace Tube_Traveller
                 {
                     LoadStations(iteration);
                 }
-                _HasStationsLoaded = true;
             }
             catch (Exception) //Any other error that I wouldn't know
             {
                 MainBox.Text = "Error in loading stations";
             }
+        }
+
+        private async Task<List<string>> GetAllStations()
+        {
+            List<string> tempStations = new();
+            List<Root> lines = await _client.GetAllLinesByModeAsync("tube");
+            foreach (Root line in lines)
+            {
+                List<Root> stations = await _client.GetAllStationsByLine(line.GetId());
+                foreach (Root station in stations)
+                {
+                    if (!_stations.ContainsKey(station.GetCommonName())) //No repeating stations appear
+                    {
+                        _stations.Add(station.GetCommonName(), station);
+                        tempStations.Add(station.GetCommonName());
+                    }
+                }
+
+                _lines.Add(line.GetId(), stations);
+            }
+
+            return tempStations;
         }
 
         private void ReloadStationsBtn_Click(object sender, RoutedEventArgs e)
@@ -115,7 +120,7 @@ namespace Tube_Traveller
 
             try //Deciding method on finding the route
             {
-                if (userAccount!.GetRouteMethod() == Text.GetRouteMethod_A())
+                if (_userAccount!.GetRouteMethod() == Text.GetRouteMethod_A())
                 {
                     MainBox.Text = "Routing Algorithimcally currently is a work in progress... please change the Route Method back to regular";
                    // route.Concat(await routing.RouteByDjikstra());
@@ -182,13 +187,20 @@ namespace Tube_Traveller
 
         private void BtnMap_Click(object sender, RoutedEventArgs e)
         {
-            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("https://tfl.gov.uk/maps/track") { UseShellExecute = true });
+            try
+            {
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("https://tfl.gov.uk/maps/track") { UseShellExecute = true });
+            }
+            catch
+            {
+                MainBox.Text = "Connect to the internet";
+            }
         }
 
         private void AccountBtn_Click(object sender, RoutedEventArgs e)
         {
 
-            if (_HasStationsLoaded == true)
+            if (_hasStationsLoaded == true)
             {
                 if (AccountBtn.Content.ToString() == "Options")
                 {
@@ -213,7 +225,7 @@ namespace Tube_Traveller
 
             if (result == true) //New account has been made or account has been logged into
             {
-                userAccount = loginWindow.GetAccount();
+                _userAccount = loginWindow.GetAccount();
                 AccountBtn.Content = "Options";
                 AddHomeStation();
             }
@@ -224,9 +236,9 @@ namespace Tube_Traveller
         /// </summary>
         private void AddHomeStation()
         {
-            if (!string.IsNullOrEmpty(userAccount!.GetHomeStation()))
+            if (!string.IsNullOrEmpty(_userAccount!.GetHomeStation()))
             {
-                _stations.Add("Home Station", _stations[userAccount.GetHomeStation()!]);
+                _stations.Add("Home Station", _stations[_userAccount.GetHomeStation()!]);
                 FromComboBox.Items.Insert(0, "Home Station");
                 ToComboBox.Items.Insert(0, "Home Station");
             }
@@ -235,7 +247,7 @@ namespace Tube_Traveller
         private void AccountOptions()
         {
             AccountSettingsWindow accountSettingsWindow = new();
-            accountSettingsWindow.SetAccount(userAccount!);
+            accountSettingsWindow.SetAccount(_userAccount!);
             accountSettingsWindow.SetStations(_stations.Keys.ToList());
             bool? result = accountSettingsWindow.ShowDialog();
 

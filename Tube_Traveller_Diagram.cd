@@ -1,0 +1,113 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Tube_Traveller.MainWindow">
+    <Position X="7" Y="5.25" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAgAAAAAAAHAAAEgVIAAAAIAAQAAgAABZAAAQAAA=</HashCode>
+      <FileName>MainWindow.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.43" Collapsed="true" />
+  </Class>
+  <Class Name="Tube_Traveller.Accounts.Account">
+    <Position X="3.25" Y="5.25" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AQACAAAACCAAIAgCAQABgAAIARAAQCACAAAAEBKAACg=</HashCode>
+      <FileName>Accounts\Account.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Tube_Traveller.Accounts.SignUpWindow" BaseTypeListCollapsed="true">
+    <Position X="0.5" Y="0.75" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAQggAQAgAABAAAAAACAAAAAAIAACEAAABAEAAECE=</HashCode>
+      <FileName>Accounts\SignUpWindow.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Tube_Traveller.AccountSettingsWindow" BaseTypeListCollapsed="true">
+    <Position X="5.75" Y="10.75" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAACAAAQAAAABAEAAAACAAgBAAAAAQAAAABAEACAAg=</HashCode>
+      <FileName>Accounts\AccountSettingsWindow.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Tube_Traveller.LoginWindow" BaseTypeListCollapsed="true">
+    <Position X="3.25" Y="0.75" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAQAAAAAgAABAAACAACAAAAAAAAACEAAABAEAAICE=</HashCode>
+      <FileName>Accounts\LoginWindow.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Tube_Traveller.Database.Database">
+    <Position X="3.25" Y="11.5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAQAAAAAAAAgAAQQAAEAACEAIAAAAACAQAECAA=</HashCode>
+      <FileName>Database\Database.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Tube_Traveller.Model.Fare">
+    <Position X="12.5" Y="13.75" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAABAAAAAAAAAAAAAAABAAAAAAAAAAA=</HashCode>
+      <FileName>Model\Fare.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Tube_Traveller.Model.Journey">
+    <Position X="11" Y="11" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAgAAACAAAAAABABAAAAAAAAAAAQAAAAAAAAAQ=</HashCode>
+      <FileName>Model\Journey.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Tube_Traveller.Model.Leg">
+    <Position X="13.5" Y="11.75" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAIAAAAAgAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Model\Leg.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Tube_Traveller.Model.Line">
+    <Position X="13.5" Y="8.75" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAA=</HashCode>
+      <FileName>Model\Line.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Tube_Traveller.Model.OrderedLineRoute">
+    <Position X="13.5" Y="6" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAIACAAAAAAAAAAAAAAIAQAAAAAAAAAAAAACAAABAA=</HashCode>
+      <FileName>Model\OrderedLineRoute.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Tube_Traveller.Model.Root">
+    <Position X="10.5" Y="6.25" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>ACACAAAQCCAAAACAAAAAAIAAAAgAIIACAAAAAAoQAAA=</HashCode>
+      <FileName>Model\Root.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Tube_Traveller.Text">
+    <Position X="5.75" Y="2.25" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAIAAAEgCAAAABABIAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Text.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Tube_Traveller.TflClient">
+    <Position X="10.75" Y="3.75" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAUAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAQBAAA=</HashCode>
+      <FileName>TflClient.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Tube_Traveller.RoutingCalculations">
+    <Position X="8.5" Y="0.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AhAAAAAABAAAAEAABEABAAAMAAAAAACAAAABCAAAAEA=</HashCode>
+      <FileName>RoutingCalculations.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

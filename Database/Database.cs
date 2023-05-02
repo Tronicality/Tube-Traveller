@@ -7,16 +7,16 @@ namespace Tube_Traveller.Database
 {
     public class Database
     {
-        private static SqliteConnectionStringBuilder connectionStringBuilder = new();
+        private static SqliteConnectionStringBuilder _connectionStringBuilder = new();
 
         public Database()
         {
-            connectionStringBuilder.DataSource = "./Database/AccountsDB.db"; //Where the database is
+            _connectionStringBuilder.DataSource = "./Database/AccountsDB.db"; //Where the database is
         }
 
         protected static string[]? GetUserInfoByUsername(string username)
         {
-            using (var connection = new SqliteConnection(connectionStringBuilder.ConnectionString)) //Connects to database
+            using (var connection = new SqliteConnection(_connectionStringBuilder.ConnectionString)) //Connects to database
             {
                 connection.Open();
                 var selectCmd = connection.CreateCommand();
@@ -43,7 +43,7 @@ namespace Tube_Traveller.Database
 
         protected static string[]? GetUserInfoByEmail(string email)
         {
-            using (var connection = new SqliteConnection(connectionStringBuilder.ConnectionString))
+            using (var connection = new SqliteConnection(_connectionStringBuilder.ConnectionString))
             {
                 connection.Open();
                 var selectCmd = connection.CreateCommand();
@@ -70,7 +70,7 @@ namespace Tube_Traveller.Database
 
         public static string? GetUserId(string username)
         {
-            using (var connection = new SqliteConnection(connectionStringBuilder.ConnectionString))
+            using (var connection = new SqliteConnection(_connectionStringBuilder.ConnectionString))
             {
                 connection.Open();
                 var selectCmd = connection.CreateCommand();
@@ -91,7 +91,7 @@ namespace Tube_Traveller.Database
 
         protected static string[]? GetExtraInfo(string id)
         {
-            using (var connection = new SqliteConnection(connectionStringBuilder.ConnectionString))
+            using (var connection = new SqliteConnection(_connectionStringBuilder.ConnectionString))
             {
                 connection.Open();
                 var selectCmd = connection.CreateCommand();
@@ -117,7 +117,7 @@ namespace Tube_Traveller.Database
 
         public void AddAccount(Account userAccount)
         {
-            using (var connection = new SqliteConnection(connectionStringBuilder.ConnectionString))
+            using (var connection = new SqliteConnection(_connectionStringBuilder.ConnectionString))
             {
                 connection.Open();
                 using (var transaction = connection.BeginTransaction()) //Ensures that all data would be inserted at the same time
@@ -162,7 +162,7 @@ namespace Tube_Traveller.Database
 
         protected void UpdateAccount(Account userAccount)
         {
-            using (var connection = new SqliteConnection(connectionStringBuilder.ConnectionString))
+            using (var connection = new SqliteConnection(_connectionStringBuilder.ConnectionString))
             {
                 connection.Open();
                 using (var transaction = connection.BeginTransaction()) //Ensures that all data would be inserted at the same time
@@ -206,7 +206,7 @@ namespace Tube_Traveller.Database
 
         public static void DeleteAccount(string id)
         {
-            using (var connection = new SqliteConnection(connectionStringBuilder.ConnectionString))
+            using (var connection = new SqliteConnection(_connectionStringBuilder.ConnectionString))
             {
                 connection.Open();
                 using (var transaction = connection.BeginTransaction()) //Ensures that all data would be inserted at the same time
@@ -232,8 +232,7 @@ namespace Tube_Traveller.Database
             insertCmd.CommandText = "DELETE FROM User WHERE Id = @Id";
             insertCmd.Parameters.AddWithValue("@Id", id);
 
-            insertCmd.ExecuteNonQuery();
-            //Does command and doesn't return any results
+            insertCmd.ExecuteNonQuery(); //Does command and doesn't return any results
         }
 
         private static void DeleteExtraInfo(SqliteConnection connection, string id)

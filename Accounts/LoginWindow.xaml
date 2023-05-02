@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Tube_Traveller"
         mc:Ignorable="d"
-        Title="AccountWindow" Height="400" Width="500" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
+        Title="LoginWindow" Height="400" Width="500" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
     <Grid>
         <TextBox x:Name="UsernameBox" HorizontalAlignment="Center" Height="28" Margin="0,102,0,0" TextWrapping="Wrap" Text="Enter Username or Email" VerticalAlignment="Top" Width="352" LostFocus="UsernameBox_LostFocus" GotFocus="UsernameBox_GotFocus"/>
         <TextBox x:Name="PasswordBox" HorizontalAlignment="Center" Height="28" Margin="0,134,0,0" TextWrapping="Wrap" Text="Enter Password" VerticalAlignment="Top" Width="352" RenderTransformOrigin="0.289,3.136" LostFocus="PasswordBox_LostFocus" GotFocus="PasswordBox_GotFocus"/>

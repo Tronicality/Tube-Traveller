@@ -4,27 +4,27 @@ namespace Tube_Traveller.Accounts
 {
     public class Account : Database.Database
     {
-        private string? Id;
+        private string? Id { get; set; }
         public string? GetId() => Id;
-        public void SetId(string value) {Id = value;}
+        public void SetId(string value) { Id = value; }
 
-        private string? Username;
+        private string? Username { get; set; }
         public string? GetUsername() => Username;
 
-        private string? Password;
+        private string? Password { get; set; }
         public string? GetPassword() => Password;
 
-        private string? Email;
+        private string? Email { get; set; }
         public string? GetEmail() => Email;
 
-        private string? RouteMethod;
+        private string? RouteMethod { get; set; }
         public string? GetRouteMethod() => RouteMethod;
 
-        private string? HomeStation;
+        private string? HomeStation { get; set; }
         public string? GetHomeStation() => HomeStation;
 
-        private bool hasUniqueUsername; 
-        public bool GetHasUniqueUsername() => hasUniqueUsername;
+        private bool _hasUniqueUsername; 
+        public bool GetHasUniqueUsername() => _hasUniqueUsername;
 
         public Account()
         {
@@ -55,11 +55,11 @@ namespace Tube_Traveller.Accounts
             string[]? userInfo = GetUserInfoByUsername(Username!);
             if (userInfo?[1] == Username)
             {
-                hasUniqueUsername = false; //Username Taken
+                _hasUniqueUsername = false; //Username Taken
             }
             else
             {
-                hasUniqueUsername = true;
+                _hasUniqueUsername = true;
                 AddAccount(this);
                 GetUserId(Username!);
             }

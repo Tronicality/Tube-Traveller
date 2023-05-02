@@ -11,19 +11,19 @@ namespace Tube_Traveller
     public partial class AccountSettingsWindow : Window
     {
         private bool _mouseEntered = false;
-        private Account? userAccount;
-        public Account? GetAccount() => userAccount;
-        public void SetAccount(Account newAccount) { userAccount = newAccount; }
+        private Account? _userAccount;
+        public Account? GetAccount() => _userAccount;
+        public void SetAccount(Account newAccount) { _userAccount = newAccount; }
 
-        private List<string> stations = new();
+        private List<string> _stations = new();
         public void SetStations(List<string> newStations)
         {
-            stations = newStations;
-            stations.Sort();
+            _stations = newStations;
+            _stations.Sort();
 
-            for (int i = 0; i < stations.Count; i++)
+            for (int i = 0; i < _stations.Count; i++)
             {
-                HomeStationComboBox.Items.Add(stations[i]);
+                HomeStationComboBox.Items.Add(_stations[i]);
             }
 
             HomeStationComboBox.Items.Insert(0, string.Empty);
@@ -39,12 +39,12 @@ namespace Tube_Traveller
 
         private void SetAccountInfo()
         {
-            PasswordBox.Text = userAccount?.GetPassword();
-            EmailBox.Text = userAccount?.GetEmail();
-            RouteMethodComboBox.Text = userAccount?.GetRouteMethod();
-            if (!string.IsNullOrEmpty(userAccount?.GetHomeStation()))
+            PasswordBox.Text = _userAccount?.GetPassword();
+            EmailBox.Text = _userAccount?.GetEmail();
+            RouteMethodComboBox.Text = _userAccount?.GetRouteMethod();
+            if (!string.IsNullOrEmpty(_userAccount?.GetHomeStation()))
             {
-                HomeStationComboBox.Text = userAccount.GetHomeStation();
+                HomeStationComboBox.Text = _userAccount.GetHomeStation();
             }
         }
 
@@ -71,7 +71,7 @@ namespace Tube_Traveller
         private void AlterAccount()
         {
             FailedLabel.Content = string.Empty;
-            userAccount?.AlterAccount(userAccount.GetUsername()!, PasswordBox.Text, EmailBox.Text, RouteMethodComboBox.Text, HomeStationComboBox.Text);
+            _userAccount?.AlterAccount(_userAccount.GetUsername()!, PasswordBox.Text, EmailBox.Text, RouteMethodComboBox.Text, HomeStationComboBox.Text);
             FailedLabel.Content = "Saved";
         }
 
@@ -81,8 +81,8 @@ namespace Tube_Traveller
 
             if (result == MessageBoxResult.Yes)
             {
-                Database.Database.DeleteAccount(userAccount!.GetId()!);
-                userAccount = null;
+                Database.Database.DeleteAccount(_userAccount!.GetId()!);
+                _userAccount = null;
                 DialogResult = true;
             }
         }

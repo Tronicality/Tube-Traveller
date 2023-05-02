@@ -10,11 +10,11 @@ namespace Tube_Traveller
     /// </summary>
     public partial class LoginWindow : Window
     {
-        private Account? userAccount;
-        public Account? GetAccount() => userAccount;
+        private Account? _userAccount;
+        public Account? GetAccount() => _userAccount;
 
-        private List<string>? stations;
-        public void SetStations(List<string> newStations) { stations = newStations; }
+        private List<string>? _stations;
+        public void SetStations(List<string> newStations) { _stations = newStations; }
 
         public LoginWindow()
         {
@@ -24,13 +24,13 @@ namespace Tube_Traveller
         private void SignUpBtn_Click(object sender, RoutedEventArgs e)
         {
             SignUpWindow signUpWindow = new();
-            signUpWindow.SetStations(stations!);
+            signUpWindow.SetStations(_stations!);
 
             bool? result = signUpWindow.ShowDialog();
             if (result == true) //Left through Register Button
             {
-                userAccount = signUpWindow.GetAccount();
-                userAccount?.SetId(Database.Database.GetUserId(userAccount.GetUsername()!)!);
+                _userAccount = signUpWindow.GetAccount();
+                _userAccount?.SetId(Database.Database.GetUserId(_userAccount.GetUsername()!)!);
                 DialogResult = true; //Tells Main window that a new account has been made
             }
         }
@@ -45,8 +45,8 @@ namespace Tube_Traveller
             {
                 try
                 {
-                    userAccount = Account.GetAccountFromDatabase(UsernameBox.Text, PasswordBox.Text);
-                    if (userAccount != null)
+                    _userAccount = Account.GetAccountFromDatabase(UsernameBox.Text, PasswordBox.Text);
+                    if (_userAccount != null)
                     {
                         DialogResult = true; //Tells main window account is found
                     }

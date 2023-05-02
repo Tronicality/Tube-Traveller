@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Tube_Traveller.Model
 {
     internal class Root
     {
-        //General - List<Root>
-        //public string? Type { get; set; }
+        //General
         public string? Id { internal get; set; }
         public string GetId() => Id!;
 
